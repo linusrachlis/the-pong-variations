@@ -1,3 +1,50 @@
+class Velocity {
+    constructor(
+        public x: number,
+        public y: number,
+        public readonly r: number
+    ) { }
+
+    static random_with_r(r: number): Velocity {
+        const angle = Math.random() * 2 * Math.PI;
+        const x = Math.cos(angle) * r;
+        if (x == 0) {
+            // TODO prevent it from being too vertical
+            // e.g. rand too near .25 or .75
+            console.error("vel.x = 0!");
+        }
+        const y = Math.sin(angle) * r;
+        return new Velocity(x, y, r);
+    }
+
+    bend_up(bend_factor: number): void {
+        this.bend_toward(-Math.PI/2, bend_factor);
+    }
+
+    bend_down(bend_factor: number): void {
+        this.bend_toward(Math.PI/2, bend_factor);
+    }
+
+    /**
+    @param target_angle radians
+    @param bend_factor 0.0 = keep current angle, 1.0 = assume target angle
+    */
+    bend_toward(target_angle: number, bend_factor: number): void {
+        const current_angle = Math.asin(this.y / this.r);
+        const range_to_add = target_angle - current_angle;
+        let new_angle = current_angle + (bend_factor * range_to_add);
+
+        if (this.x < 0) {
+            // In the above process we lost the X direction, so flip it
+            // back if it's going to the left.
+            new_angle = Math.PI - new_angle
+        }
+
+        this.x = Math.cos(new_angle) * this.r;
+        this.y = Math.sin(new_angle) * this.r;
+    }
+}
+
 class Paddle {
     constructor(
         public left: number,
@@ -12,7 +59,7 @@ class Paddle {
     moving_down = false;
     moving_up = false;
 
-    static readonly move_speed = 5;
+    static readonly move_speed = 3;
 
     bounce(puck: Puck): void {
         // Is the puck touching or overlapping this paddle at all?
@@ -22,7 +69,12 @@ class Paddle {
             (puck.top <= this.bottom) &&
             (puck.bottom >= this.top)
         ) {
-            let x_overlap, y_overlap, x_teleport, y_teleport;
+            let x_overlap: number,
+                y_overlap: number,
+                x_teleport: number,
+                y_teleport: number,
+                bend_up_factor: number | undefined,
+                bend_down_factor: number | undefined;
 
             const right_overlap = this.right - puck.left;
             const left_overlap = puck.right - this.left;
@@ -45,9 +97,21 @@ class Paddle {
             if (bottom_overlap < top_overlap) {
                 y_teleport = this.bottom;
                 y_overlap = bottom_overlap;
+
+                if (bottom_overlap < puck.height) {
+                    // When puck is just off the paddle's bottom, angle it
+                    // downwards in proportion to how little of it is overlapping.
+                    bend_down_factor = 1 - (bottom_overlap / puck.height);
+                }
             } else {
                 y_teleport = this.top - puck.height;
                 y_overlap = top_overlap;
+
+                if (top_overlap < puck.height) {
+                    // When puck is just off the paddle's TOP, angle it
+                    // UPwards in proportion to how little of it is overlapping.
+                    bend_up_factor = 1 - (top_overlap / puck.height);
+                }
             }
 
             // Is the puck hitting a vertical or horizontal edge?
@@ -63,6 +127,13 @@ class Paddle {
             if (x_overlap <= y_overlap) {
                 puck.left = x_teleport;
                 puck.vel.x *= -1;
+
+                if (bend_up_factor !== undefined) {
+                    puck.vel.bend_up(bend_up_factor);
+                }
+                else if (bend_down_factor !== undefined) {
+                    puck.vel.bend_down(bend_down_factor);
+                }
             }
             else if (x_overlap >= y_overlap) {
                 puck.top = y_teleport;
@@ -83,10 +154,7 @@ class Paddle {
 }
 
 class Puck {
-    vel: {
-        x: number,
-        y: number
-    };
+    vel: Velocity;
 
     get right(): number { return this.left + this.width; }
     get bottom(): number { return this.top + this.height; }
@@ -94,18 +162,10 @@ class Puck {
     constructor(
         public width: number, public height: number,
         public left: number, public top: number,
-        desired_vel_magnitude: number
+        speed: number
     ) {
-        // Calculate random initial velocity of consistent magnitude.
-        // (desired_vel_magnitude being the hypotenuse.)
-        let h = desired_vel_magnitude,
-            x = (Math.random() * h * .8) + (h * .2), // Don't let x be too small
-            y = Math.sqrt((h * h) - (x * x));
-        // Randomly make them + or - so the vector will be within
-        // all 360 degrees.
-        if (random_bool()) x *= -1;
-        if (random_bool()) y *= -1;
-        this.vel = { x, y }
+        // Calculate random initial vector with given speed.
+        this.vel = Velocity.random_with_r(speed);
     }
 
     tick(): void {
@@ -141,9 +201,9 @@ class Pong {
             puck_y = half_height - Math.round(puck_height / 2);
         this.puck = new Puck(
             puck_width, puck_height,
-            half_width, half_height, 5);
+            half_width, half_height, 3);
 
-        const paddle_width = 100, paddle_height = 100,
+        const paddle_width = 20, paddle_height = 100,
             paddle_y = half_height - Math.round(paddle_height / 2);
         this.paddle_l = new Paddle(0, paddle_y, paddle_width, paddle_height);
         this.paddle_r = new Paddle(
@@ -234,6 +294,7 @@ window.addEventListener('load', () => {
     });
 
     // TODO bounce angling
+    // TODO use separate source files for classes
     // TODO disallow moving paddles off-screen
     // TODO paint game over text on canvas
     // TODO implement intentional grabbing
