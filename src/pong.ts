@@ -1,16 +1,18 @@
 import Velocity from "./velocity";
 import Puck from "./puck";
 import Paddle from "./paddle";
+import * as util from "./util";
 
 export default class Pong {
     puck: Puck;
     paddle_l: Paddle;
     paddle_r: Paddle;
 
+    is_over = false;
+
     constructor(
         public width: number,
-        public height: number,
-        public game_over: () => void
+        public height: number
     ) {
         const half_width = Math.floor(width / 2),
             half_height = Math.floor(height / 2);
@@ -27,6 +29,22 @@ export default class Pong {
             0, paddle_y, paddle_width, paddle_height, this);
         this.paddle_r = new Paddle(
             width - paddle_width, paddle_y, paddle_width, paddle_height, this);
+    }
+
+    draw(ctx: CanvasRenderingContext2D): void {
+        ctx.clearRect(0, 0, this.width, this.height);
+        this.paddle_l.draw(ctx);
+        this.paddle_r.draw(ctx);
+        this.puck.draw(ctx);
+
+        if (this.is_over) {
+            util.paint_text(
+                ctx, "GAME OVER!", "bold 48px sans-serif",
+                this.width / 2, this.height / 2);
+            util.paint_text(
+                ctx, "Space to restart", "16px sans-serif",
+                this.width / 2, this.height / 2 + 48);
+        }
     }
 
     tick(): void {
@@ -47,7 +65,7 @@ export default class Pong {
 
         // Puck/wall collision check (victory condition)
         if (this.puck.left <= 0 || this.puck.right >= this.width) {
-            this.game_over();
+            this.is_over = true;
         }
     }
 }
