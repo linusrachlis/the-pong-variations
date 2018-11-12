@@ -6,13 +6,12 @@ class Velocity {
     ) { }
 
     static random_with_r(r: number): Velocity {
-        const angle = Math.random() * 2 * Math.PI;
-        const x = Math.cos(angle) * r;
-        if (x == 0) {
-            // TODO prevent it from being too vertical
-            // e.g. rand too near .25 or .75
-            console.error("vel.x = 0!");
+        let angle = -Math.PI/4 + (Math.PI/2 * Math.random());
+        if (random_bool()) {
+            // 50% chance of going to the left
+            angle += Math.PI;
         }
+        const x = Math.cos(angle) * r;
         const y = Math.sin(angle) * r;
         return new Velocity(x, y, r);
     }
@@ -37,7 +36,7 @@ class Velocity {
         if (this.x < 0) {
             // In the above process we lost the X direction, so flip it
             // back if it's going to the left.
-            new_angle = Math.PI - new_angle
+            new_angle = Math.PI - new_angle;
         }
 
         this.x = Math.cos(new_angle) * this.r;
