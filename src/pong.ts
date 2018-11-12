@@ -23,9 +23,10 @@ export default class Pong {
 
         const paddle_width = 20, paddle_height = 100,
             paddle_y = half_height - Math.round(paddle_height / 2);
-        this.paddle_l = new Paddle(0, paddle_y, paddle_width, paddle_height);
+        this.paddle_l = new Paddle(
+            0, paddle_y, paddle_width, paddle_height, this);
         this.paddle_r = new Paddle(
-            width - paddle_width, paddle_y, paddle_width, paddle_height);
+            width - paddle_width, paddle_y, paddle_width, paddle_height, this);
     }
 
     tick(): void {

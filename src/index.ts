@@ -59,9 +59,7 @@ window.addEventListener('load', () => {
         handle_key_event(e, false);
     });
 
-    // TODO use separate source files for classes
     // TODO better bounce angling? to actually cap how vertical it can get
-    // TODO disallow moving paddles off-screen
     // TODO paint game over text on canvas
     // TODO implement intentional grabbing
     // TODO or "tractor beam"?

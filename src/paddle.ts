@@ -1,3 +1,4 @@
+import Pong from "./pong";
 import Puck from "./puck";
 
 export default class Paddle {
@@ -6,6 +7,7 @@ export default class Paddle {
         public top: number,
         public width: number,
         public height: number,
+        private pong: Pong
     ) { }
 
     get right(): number { return this.left + this.width; }
@@ -98,8 +100,13 @@ export default class Paddle {
     }
 
     tick(): void {
-        if (this.moving_down) this.top += Paddle.move_speed;
-        if (this.moving_up) this.top -= Paddle.move_speed;
+        if (this.moving_down && this.bottom < this.pong.height) {
+            this.top += Paddle.move_speed;
+        }
+
+        if (this.moving_up && this.top > 0) {
+            this.top -= Paddle.move_speed;
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
