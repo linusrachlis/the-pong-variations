@@ -8,7 +8,7 @@ export default class Velocity {
     ) { }
 
     static random_with_r(r: number): Velocity {
-        let angle = -Math.PI/4 + (Math.PI/2 * Math.random());
+        let angle = -Math.PI / 4 + (Math.PI / 2 * Math.random());
         if (util.random_bool()) {
             // 50% chance of going to the left
             angle += Math.PI;
@@ -19,11 +19,11 @@ export default class Velocity {
     }
 
     bend_up(bend_factor: number): void {
-        this.bend_toward(-Math.PI/2, bend_factor * .75);
+        this.bend_toward(-Math.PI / 2, bend_factor * .75);
     }
 
     bend_down(bend_factor: number): void {
-        this.bend_toward(Math.PI/2, bend_factor * .75);
+        this.bend_toward(Math.PI / 2, bend_factor * .75);
     }
 
     /**

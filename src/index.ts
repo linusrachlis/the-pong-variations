@@ -29,7 +29,7 @@ window.addEventListener('load', () => {
         pong.tick();
     };
 
-    const restart = () => {
+    const new_game = () => {
         if (pong !== undefined && pong.is_over) {
             pong = undefined;
         }
@@ -40,7 +40,7 @@ window.addEventListener('load', () => {
         tick_interval = window.setInterval(tick, tick_length);
         window.requestAnimationFrame(paint);
     };
-    restart();
+    new_game();
 
     const handle_key_event = (e: KeyboardEvent): void => {
         if (pong === undefined) return;
@@ -60,7 +60,7 @@ window.addEventListener('load', () => {
             } break;
             case ' ':
             case "Spacebar": {
-                if (e.type == "keyup") restart();
+                if (e.type == "keyup") new_game();
             } break;
         }
     };
@@ -73,4 +73,5 @@ window.addEventListener('load', () => {
     // TODO or "tractor beam"?
     // TODO sound fx
     // TODO lock physics while painting?
+    // TODO touch screen controls
 });
