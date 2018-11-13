@@ -17,18 +17,19 @@ export default class Pong {
         const half_width = Math.floor(width / 2),
             half_height = Math.floor(height / 2);
 
-        const puck_width = 20, puck_height = 20,
-            puck_y = half_height - Math.round(puck_height / 2);
-        this.puck = new Puck(
-            puck_width, puck_height,
-            half_width, half_height, 3);
-
         const paddle_width = 20, paddle_height = 100,
             paddle_y = half_height - Math.round(paddle_height / 2);
         this.paddle_l = new Paddle(
             0, paddle_y, paddle_width, paddle_height, this);
         this.paddle_r = new Paddle(
             width - paddle_width, paddle_y, paddle_width, paddle_height, this);
+
+        const puck_width = 20, puck_height = 20,
+            puck_y = half_height - Math.round(puck_height / 2);
+        this.puck = new Puck(
+            puck_width, puck_height,
+            half_width, half_height,
+            3, [this.paddle_l, this.paddle_r]);
     }
 
     draw(ctx: CanvasRenderingContext2D): void {

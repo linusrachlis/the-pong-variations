@@ -12,11 +12,15 @@ export default class Paddle {
 
     get right(): number { return this.left + this.width; }
     get bottom(): number { return this.top + this.height; }
+    get center_x(): number { return this.left + this.width / 2; }
+    get center_y(): number { return this.top + this.height / 2; }
 
     moving_down = false;
     moving_up = false;
+    grabbing = false;
 
     static readonly move_speed = 3;
+    static readonly grab_force = 0.1;
 
     tick(): void {
         const puck = this.pong.puck;
@@ -110,7 +114,7 @@ export default class Paddle {
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = "limegreen";
+        ctx.fillStyle = this.grabbing ? "yellow" : "limegreen";
         ctx.fillRect(this.left, this.top, this.width, this.height);
     }
 }

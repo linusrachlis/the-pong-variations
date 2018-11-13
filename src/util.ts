@@ -11,3 +11,6 @@ export const paint_text = (
     ctx.fillStyle = "white";
     ctx.fillText(text, x, y);
 };
+export const hypot = (x: number, y: number): number => {
+    return Math.sqrt(x * x + y * y);
+};
