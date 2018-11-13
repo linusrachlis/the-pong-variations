@@ -18,7 +18,17 @@ export default class Paddle {
 
     static readonly move_speed = 3;
 
-    bounce(puck: Puck): void {
+    tick(): void {
+        const puck = this.pong.puck;
+
+        // Apply paddle movement
+        if (this.moving_down && this.bottom < this.pong.height) {
+            this.top += Paddle.move_speed;
+        }
+        if (this.moving_up && this.top > 0) {
+            this.top -= Paddle.move_speed;
+        }
+
         // Is the puck touching or overlapping this paddle at all?
         if (
             (puck.left <= this.right) &&
@@ -96,16 +106,6 @@ export default class Paddle {
                 puck.top = y_teleport;
                 puck.vel.y *= -1;
             }
-        }
-    }
-
-    tick(): void {
-        if (this.moving_down && this.bottom < this.pong.height) {
-            this.top += Paddle.move_speed;
-        }
-
-        if (this.moving_up && this.top > 0) {
-            this.top -= Paddle.move_speed;
         }
     }
 

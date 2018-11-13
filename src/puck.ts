@@ -1,3 +1,4 @@
+import Paddle from "./paddle";
 import Velocity from "./velocity";
 
 export default class Puck {

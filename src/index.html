@@ -3,16 +3,65 @@
 <head>
     <title>Pong!</title>
     <style>
-        body {
-            background-color: #444;
-        }
-        #canvas {
-            background-color: black;
-        }
-    </style>
+    body {
+        background-color: #444;
+        color: #ddd;
+        font: 18px sans-serif;
+    }
+    h2 { font: bold 130% sans-serif; }
+    main {
+        display: flex;
+    }
+    main .help {
+        margin: 0 1em;
+        line-height: 2;
+    }
+    main .help .key {
+        font-size: 120%;
+        background-color: #eee;
+        border: 3px outset #444;
+        border-radius: 5px;
+        padding: 2px 5px;
+        color: #111;
+    }
+    #canvas {
+        margin: 0 1em;
+        border: 3px inset #666;
+        background-color: black;
+    }
+</style>
 </head>
 <body>
-    <canvas id=canvas width=400 height=500></canvas>
+    <main>
+        <div class=help>
+            <h2>Left Paddle:</h2>
+            <table>
+                <tr>
+                    <th><span class=key>Q</span></th>
+                    <td>move up</td>
+                </tr>
+                <tr>
+                    <th><span class=key>A</span></th>
+                    <td>move down</td>
+                </tr>
+            </table>
+        </div>
+        <canvas id=canvas width=400 height=500></canvas>
+        <div class=help>
+            <h2>Right Paddle:</h2>
+
+            <table>
+                <tr>
+                    <th><span class=key>P</span></th>
+                    <td>move up</td>
+                </tr>
+                <tr>
+                    <th><span class=key>L</span></th>
+                    <td>move down</td>
+                </tr>
+            </table>
+        </div>
+    </main>
     <script src="index.ts"></script>
 </body>
 </html>

@@ -46,6 +46,7 @@ window.addEventListener('load', () => {
         if (pong === undefined) return;
 
         switch (e.key) {
+            // Movement
             case 'q': {
                 pong.paddle_l.moving_up = (e.type == "keydown");
             } break;
@@ -58,6 +59,8 @@ window.addEventListener('load', () => {
             case 'l': {
                 pong.paddle_r.moving_down = (e.type == "keydown");
             } break;
+
+            // Restart
             case ' ':
             case "Spacebar": {
                 if (e.type == "keyup") new_game();
@@ -68,8 +71,9 @@ window.addEventListener('load', () => {
     window.addEventListener("keydown", handle_key_event);
     window.addEventListener("keyup", handle_key_event);
 
-    // TODO better bounce angling? to actually cap how vertical it can get
-    // TODO implement intentional grabbing
+    // TODO better bounce angling
+    // - just base the angle on Y distance from paddle's centre
+    // - actually cap how vertical it can get
     // TODO or "tractor beam"?
     // TODO sound fx
     // TODO lock physics while painting?
