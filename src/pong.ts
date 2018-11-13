@@ -52,10 +52,6 @@ export default class Pong {
         this.paddle_l.tick();
         this.paddle_r.tick();
 
-        // Paddle/puck collision check
-        this.paddle_l.bounce(this.puck);
-        this.paddle_r.bounce(this.puck);
-
         // TODO don't reverse vel multiple times in single tick
 
         // Puck/ceiling or puck/floor collision check

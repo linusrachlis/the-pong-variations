@@ -15,10 +15,28 @@ export default class Paddle {
 
     moving_down = false;
     moving_up = false;
+    grabbing = false;
 
     static readonly move_speed = 3;
 
-    bounce(puck: Puck): void {
+    tick(): void {
+        const puck = this.pong.puck;
+
+        // Apply paddle movement (and apply to puck too, if this paddle's
+        // grabbing it)
+        if (this.moving_down && this.bottom < this.pong.height) {
+            this.top += Paddle.move_speed;
+            if (puck.grabbed_by === this) {
+                puck.top += Paddle.move_speed;
+            }
+        }
+        if (this.moving_up && this.top > 0) {
+            this.top -= Paddle.move_speed;
+            if (puck.grabbed_by === this) {
+                puck.top -= Paddle.move_speed;
+            }
+        }
+
         // Is the puck touching or overlapping this paddle at all?
         if (
             (puck.left <= this.right) &&
@@ -26,6 +44,17 @@ export default class Paddle {
             (puck.top <= this.bottom) &&
             (puck.bottom >= this.top)
         ) {
+            if (this.grabbing && puck.grabbed_by === undefined) {
+                // Apply grab
+                puck.grabbed_by = this;
+            } else if (!this.grabbing && puck.grabbed_by === this) {
+                // Release
+                puck.grabbed_by = undefined;
+            }
+
+            // If puck is grabbed, don't do bounce calculation now
+            if (puck.grabbed_by !== undefined) return;
+
             let x_overlap: number,
                 y_overlap: number,
                 x_teleport: number,
@@ -96,16 +125,6 @@ export default class Paddle {
                 puck.top = y_teleport;
                 puck.vel.y *= -1;
             }
-        }
-    }
-
-    tick(): void {
-        if (this.moving_down && this.bottom < this.pong.height) {
-            this.top += Paddle.move_speed;
-        }
-
-        if (this.moving_up && this.top > 0) {
-            this.top -= Paddle.move_speed;
         }
     }
 
