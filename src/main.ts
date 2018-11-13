@@ -1,4 +1,5 @@
 import Pong from './pong'
+import AI from './ai'
 
 export class GameMode {
     grabbing = false
@@ -30,6 +31,7 @@ window.addEventListener('load', () => {
     magnetic_mode_checkbox.addEventListener('change', update_game_mode)
 
     let pong: Pong | undefined
+    let ai: AI | undefined
     let tick_interval: number
 
     const paint = () => {
@@ -44,16 +46,19 @@ window.addEventListener('load', () => {
             return
         }
         pong.tick()
+        ai!.tick() // ai will be defined if pong is
     }
 
     const new_game = () => {
         if (pong !== undefined && pong.is_over) {
             pong = undefined
+            ai = undefined
         }
         if (pong !== undefined) {
             return // Won't restart if exists and isn't over
         }
         pong = new Pong(game_mode, canvas.width, canvas.height)
+        ai = new AI(pong, pong.paddle_r)
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
     }
