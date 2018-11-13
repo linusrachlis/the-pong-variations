@@ -14,12 +14,17 @@ export default class Paddle {
     get bottom(): number { return this.top + this.height; }
     get center_x(): number { return this.left + this.width / 2; }
     get center_y(): number { return this.top + this.height / 2; }
+    get pulling(): boolean {
+        return (
+            (this.moving_down || this.moving_up) &&
+            !(this.moving_down && this.moving_up)
+        );
+    }
 
     moving_down = false;
     moving_up = false;
-    grabbing = false;
 
-    static readonly move_speed = 3;
+    static readonly move_speed = 2;
     static readonly grab_force = 0.1;
 
     tick(): void {
@@ -114,7 +119,7 @@ export default class Paddle {
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.grabbing ? "yellow" : "limegreen";
+        ctx.fillStyle = this.pulling ? "yellow" : "limegreen";
         ctx.fillRect(this.left, this.top, this.width, this.height);
     }
 }

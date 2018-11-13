@@ -47,25 +47,17 @@ window.addEventListener('load', () => {
 
         switch (e.key) {
             // Movement
-            case 'q': {
+            case 'a': {
                 pong.paddle_l.moving_up = (e.type == "keydown");
             } break;
             case 'z': {
                 pong.paddle_l.moving_down = (e.type == "keydown");
             } break;
-            case 'p': {
+            case '\'': {
                 pong.paddle_r.moving_up = (e.type == "keydown");
             } break;
-            case ',': {
+            case '/': {
                 pong.paddle_r.moving_down = (e.type == "keydown");
-            } break;
-
-            // Grabbing
-            case 'a': {
-                pong.paddle_l.grabbing = (e.type == "keydown");
-            } break;
-            case 'l': {
-                pong.paddle_r.grabbing = (e.type == "keydown");
             } break;
 
             // Restart

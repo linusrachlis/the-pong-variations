@@ -25,9 +25,9 @@ export default class Puck {
         this.left += this.vel.x;
         this.top += this.vel.y;
 
-        // Recalculate velocity if either paddle is grabbing
+        // Apply gravity toward any moving paddle
         for (let paddle of this.paddles) {
-            if (paddle.grabbing) {
+            if (paddle.pulling) {
                 const rel_x = paddle.center_x - this.center_x;
                 const rel_y = paddle.center_y - this.center_y;
                 this.vel.apply_force_toward(Paddle.grab_force, rel_x, rel_y);
