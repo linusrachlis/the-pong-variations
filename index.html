@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pong!</title>
+    <title>Gravity Pong</title>
     <style>
     body {
         background-color: #444;
         color: #ddd;
         font: 18px sans-serif;
     }
+    h1 {
+        font: bold 250% sans-serif;
+        text-transform: uppercase;
+        text-align: center;
+    }
     h2 { font: bold 130% sans-serif; }
     main {
         display: flex;
+        justify-content: center;
     }
     main .help {
         margin: 0 1em;
@@ -32,6 +38,7 @@
 </style>
 </head>
 <body>
+    <h1>Gravity Pong</h1>
     <main>
         <div>
             <label>
@@ -56,7 +63,7 @@
                 </tr>
             </table>
         </div>
-        <canvas id=canvas width=400 height=500></canvas>
+        <canvas id=canvas width=400 height=600></canvas>
         <div class=help>
             <h2>Right Paddle:</h2>
 
