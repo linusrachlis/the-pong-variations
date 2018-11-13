@@ -8,10 +8,17 @@
         color: #ddd;
         font: 18px sans-serif;
     }
+    a, a:visited {
+        color: #888;
+        text-decoration: underline;
+    }
+    a:active, a:hover { color: white; }
+    header, footer {
+        text-align: center;
+    }
     h1 {
         font: bold 250% sans-serif;
         text-transform: uppercase;
-        text-align: center;
     }
     h2 { font: bold 130% sans-serif; }
     main {
@@ -38,7 +45,9 @@
 </style>
 </head>
 <body>
-    <h1>Gravity Pong</h1>
+    <header>
+        <h1>Gravity Pong</h1>
+    </header>
     <main>
         <div class=help>
             <h2>Left Paddle:</h2>
@@ -69,6 +78,9 @@
             </table>
         </div>
     </main>
+    <footer>
+        <p><a href="https://github.com/linusrachlis/the-pong-variations/tree/gravity">Source Code</a></p>
+    </footer>
     <script src="index.ts"></script>
 </body>
 </html>
