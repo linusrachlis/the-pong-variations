@@ -1,18 +1,22 @@
-import Velocity from "./velocity";
-import Puck from "./puck";
+import { PlayerSide } from "./enums";
+import Input from "./input";
 import Paddle from "./paddle";
+import Puck from "./puck";
 import * as util from "./util";
 
 export default class Pong {
     puck: Puck;
     paddle_l: Paddle;
     paddle_r: Paddle;
+    paddles: { [key: string]: Paddle };
 
     is_over = false;
 
     constructor(
         public width: number,
-        public height: number
+        public height: number,
+        input_l: Input,
+        input_r: Input
     ) {
         const half_width = Math.floor(width / 2),
             half_height = Math.floor(height / 2);
@@ -20,9 +24,15 @@ export default class Pong {
         const paddle_width = 20, paddle_height = 100,
             paddle_y = half_height - Math.round(paddle_height / 2);
         this.paddle_l = new Paddle(
-            0, paddle_y, paddle_width, paddle_height, this);
+            0, paddle_y, paddle_width, paddle_height,
+            input_l, this);
         this.paddle_r = new Paddle(
-            width - paddle_width, paddle_y, paddle_width, paddle_height, this);
+            width - paddle_width, paddle_y, paddle_width, paddle_height,
+            input_r, this);
+        this.paddles = {
+            [PlayerSide.LEFT]: this.paddle_l,
+            [PlayerSide.RIGHT]: this.paddle_r
+        };
 
         const puck_width = 20, puck_height = 20,
             puck_y = half_height - Math.round(puck_height / 2);

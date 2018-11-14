@@ -1,5 +1,5 @@
+import Input from "./input";
 import Pong from "./pong";
-import Puck from "./puck";
 
 export default class Paddle {
     constructor(
@@ -7,6 +7,7 @@ export default class Paddle {
         public top: number,
         public width: number,
         public height: number,
+        public input: Input,
         private pong: Pong
     ) { }
 
@@ -116,6 +117,8 @@ export default class Paddle {
                 puck.vel.y *= -1;
             }
         }
+
+        this.input.tick(this, this.pong);
     }
 
     draw(ctx: CanvasRenderingContext2D): void {

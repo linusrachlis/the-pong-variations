@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gravity Pong</title>
+    <title>Magnet Pong</title>
     <style>
     body {
         background-color: #444;
@@ -42,45 +42,64 @@
         border: 3px inset #666;
         background-color: black;
     }
+    .hidden_panel { display: none; }
 </style>
 </head>
+
 <body>
     <header>
-        <h1>Gravity Pong</h1>
+        <h1>Magnet Pong</h1>
     </header>
-    <main>
-        <div class=help>
-            <h2>Left Paddle:</h2>
-            <table>
-                <tr>
-                    <th><span class=key>A</span></th>
-                    <td>move up</td>
-                </tr>
-                <tr>
-                    <th><span class=key>Z</span></th>
-                    <td>move down</td>
-                </tr>
-            </table>
-        </div>
-        <canvas id=canvas width=400 height=600></canvas>
-        <div class=help>
-            <h2>Right Paddle:</h2>
 
-            <table>
-                <tr>
-                    <th><span class=key>'</span></th>
-                    <td>move up</td>
-                </tr>
-                <tr>
-                    <th><span class=key>/</span></th>
-                    <td>move down</td>
-                </tr>
-            </table>
+    <main>
+        <div class=sidebar>
+            <div class=help>
+                <h2>Left Paddle:</h2>
+                <table>
+                    <tr>
+                        <th><span class=key>A</span></th>
+                        <td>move up</td>
+                    </tr>
+                    <tr>
+                        <th><span class=key>Z</span></th>
+                        <td>move down</td>
+                    </tr>
+                </table>
+                <button class=mode_switch data-to=ai data-side=left>Switch to computer player</button>
+            </div>
+            <div class="ai_panel hidden_panel">
+                <button class=mode_switch data-to=human data-side=left>Switch to human player</button>
+            </div>
+        </div>
+
+        <canvas id=canvas width=400 height=600></canvas>
+
+        <div class=sidebar>
+            <div class="help hidden_panel">
+                <h2>Right Paddle:</h2>
+
+                <table>
+                    <tr>
+                        <th><span class=key>'</span></th>
+                        <td>move up</td>
+                    </tr>
+                    <tr>
+                        <th><span class=key>/</span></th>
+                        <td>move down</td>
+                    </tr>
+                </table>
+                <button class=mode_switch data-to=ai data-side=right>Switch to computer player</button>
+            </div>
+            <div class=ai_panel>
+                <button class=mode_switch data-to=human data-side=right>Switch to human player</button>
+            </div>
         </div>
     </main>
+
     <footer>
-        <p><a href="https://github.com/linusrachlis/the-pong-variations/tree/gravity">Source Code</a></p>
+        <p><a href="https://github.com/linusrachlis/the-pong-variations/tree/gravity-ai">Source Code</a></p>
     </footer>
+
     <script src="index.ts"></script>
 </body>
 </html>

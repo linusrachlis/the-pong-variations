@@ -1,40 +1,43 @@
 import Pong from "./pong"
 import Paddle from "./paddle"
+import Input from "./input"
 
-enum MoveDirection { UP, DOWN, STOP }
+const enum MoveDirection { UP, DOWN, STOP }
 
-export default class AI {
-    constructor(public pong: Pong, public paddle: Paddle) { }
-
-    static readonly puck_y_distance_threshold = 50;
+export default class AI implements Input {
+    static readonly puck_y_distance_threshold = 40;
     static readonly move_request_threshold = 10;
 
     private last_requested_direction: MoveDirection | undefined;
     private move_request_counter = 0;
 
-    tick(): void {
-        // FIXME
-        if (this.pong.puck.vel.x <= 0) {
-            this.move_debounce(MoveDirection.STOP);
+    tick(paddle: Paddle, pong: Pong): void {
+        const puck = pong.puck;
+        // Only care if puck is approaching
+        if (
+            ((puck.center_x < paddle.center_x) && (puck.vel.x <= 0)) ||
+            ((puck.center_x > paddle.center_x) && (puck.vel.x >= 0))
+        ) {
+            this.move_debounce(paddle, MoveDirection.STOP);
             return;
         }
 
-        const y_distance_to_puck = this.pong.puck.center_y - this.paddle.center_y;
+        const y_distance_to_puck = pong.puck.center_y - paddle.center_y;
         if (y_distance_to_puck >= AI.puck_y_distance_threshold) {
-            this.move_debounce(MoveDirection.DOWN);
+            this.move_debounce(paddle, MoveDirection.DOWN);
         } else if (y_distance_to_puck <= -AI.puck_y_distance_threshold) {
-            this.move_debounce(MoveDirection.UP);
+            this.move_debounce(paddle, MoveDirection.UP);
         } else {
-            this.move_debounce(MoveDirection.STOP);
+            this.move_debounce(paddle, MoveDirection.STOP);
         }
     }
 
-    private move_debounce(direction: MoveDirection): void {
+    private move_debounce(paddle: Paddle, direction: MoveDirection): void {
         if (direction == this.last_requested_direction) {
             this.move_request_counter++;
             if (this.move_request_counter >= AI.move_request_threshold) {
-                this.paddle.moving_down = (direction == MoveDirection.DOWN);
-                this.paddle.moving_up = (direction == MoveDirection.UP);
+                paddle.moving_down = (direction == MoveDirection.DOWN);
+                paddle.moving_up = (direction == MoveDirection.UP);
                 this.move_request_counter = 0;
             }
         } else {
