@@ -9,6 +9,8 @@ export default class Pong {
     paddle_l: Paddle;
     paddle_r: Paddle;
     paddles: { [key: string]: Paddle };
+    center_x: number;
+    center_y: number;
 
     is_over = false;
 
@@ -18,11 +20,11 @@ export default class Pong {
         input_l: Input,
         input_r: Input
     ) {
-        const half_width = Math.floor(width / 2),
-            half_height = Math.floor(height / 2);
+        this.center_x = width / 2;
+        this.center_y = height / 2;
 
         const paddle_width = 20, paddle_height = 100,
-            paddle_y = half_height - Math.round(paddle_height / 2);
+            paddle_y = this.center_y - Math.round(paddle_height / 2);
         this.paddle_l = new Paddle(
             0, paddle_y, paddle_width, paddle_height,
             input_l, this);
@@ -35,10 +37,10 @@ export default class Pong {
         };
 
         const puck_width = 20, puck_height = 20,
-            puck_y = half_height - Math.round(puck_height / 2);
+            puck_y = this.center_y - Math.round(puck_height / 2);
         this.puck = new Puck(
             puck_width, puck_height,
-            half_width, half_height,
+            this.center_x, this.center_y,
             3, [this.paddle_l, this.paddle_r]);
     }
 

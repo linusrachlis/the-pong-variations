@@ -65,17 +65,30 @@ window.addEventListener('load', () => {
 
         switch (e.key) {
             // Movement
-            case 'a': {
+            case 'w': {
                 human_input_l.moving_up = (e.type == "keydown");
             } break;
-            case 'z': {
+            case 'a': {
+                human_input_l.moving_left = (e.type == "keydown");
+            } break;
+            case 's': {
                 human_input_l.moving_down = (e.type == "keydown");
             } break;
-            case '\'': {
+            case 'd': {
+                human_input_l.moving_right = (e.type == "keydown");
+            } break;
+
+            case "ArrowUp": {
                 human_input_r.moving_up = (e.type == "keydown");
             } break;
-            case '/': {
+            case "ArrowLeft": {
+                human_input_r.moving_left = (e.type == "keydown");
+            } break;
+            case "ArrowDown": {
                 human_input_r.moving_down = (e.type == "keydown");
+            } break;
+            case "ArrowRight": {
+                human_input_r.moving_right = (e.type == "keydown");
             } break;
 
             // Restart

@@ -2,6 +2,9 @@ import Input from "./input";
 import Pong from "./pong";
 
 export default class Paddle {
+    private left_boundary: number;
+    private right_boundary: number;
+
     constructor(
         public left: number,
         public top: number,
@@ -9,21 +12,44 @@ export default class Paddle {
         public height: number,
         public input: Input,
         private pong: Pong
-    ) { }
+    ) {
+        if (this.center_x < pong.center_x) {
+            this.left_boundary = 0;
+            this.right_boundary = pong.center_x;
+        } else {
+            this.left_boundary = pong.center_x;
+            this.right_boundary = pong.width;
+        }
+    }
 
     get right(): number { return this.left + this.width; }
     get bottom(): number { return this.top + this.height; }
     get center_x(): number { return this.left + this.width / 2; }
     get center_y(): number { return this.top + this.height / 2; }
     get pulling(): boolean {
+        // Paddle exerts attractive force on puck when moving
+        // in any direction: ((down XOR up) OR (left XOR right)).
+        // The xors are because both can be true but that results
+        // in standing still along that axis.
+        //
+        // TODO don't allow pulling by moving against a wall?
+        // (i.e. standing still)
         return (
-            (this.moving_down || this.moving_up) &&
-            !(this.moving_down && this.moving_up)
+            (
+                (this.moving_down || this.moving_up) &&
+                !(this.moving_down && this.moving_up)
+            ) ||
+            (
+                (this.moving_right || this.moving_left) &&
+                !(this.moving_right && this.moving_left)
+            )
         );
     }
 
     moving_down = false;
     moving_up = false;
+    moving_left = false;
+    moving_right = false;
 
     static readonly move_speed = 2;
     static readonly grab_force = 0.1;
@@ -37,6 +63,12 @@ export default class Paddle {
         }
         if (this.moving_up && this.top > 0) {
             this.top -= Paddle.move_speed;
+        }
+        if (this.moving_left && this.left > this.left_boundary) {
+            this.left -= Paddle.move_speed;
+        }
+        if (this.moving_right && this.right < this.right_boundary) {
+            this.left += Paddle.move_speed;
         }
 
         // Is the puck touching or overlapping this paddle at all?
