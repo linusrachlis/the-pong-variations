@@ -22,23 +22,22 @@ export default class AI implements Input {
         [Axis.Y]: 0,
     };
 
-    private x_axis_input_cycle = [
+    private current_x_axis_input = AxisInput.STOP;
+    static readonly axis_input_options = [
+        AxisInput.STOP,
         AxisInput.MINUS,
-        AxisInput.STOP,
-        AxisInput.PLUS,
-        AxisInput.STOP,
+        AxisInput.PLUS
     ];
-    private current_x_axis_input = 0;
 
     tick(paddle: Paddle, pong: Pong): void {
         const puck = pong.puck;
 
-        // Alpha AI for X axis movement: just cycle between
-        // left, stop, right, stop
+        // Alpha 2 AI for X axis movement: randomly choose an input, apply
+        // until accepted, repeat.
         const input_accepted = this.input_debounce(
-            Axis.X, paddle, this.x_axis_input_cycle[this.current_x_axis_input]);
+            Axis.X, paddle, this.current_x_axis_input);
         if (input_accepted) {
-            this.current_x_axis_input = (this.current_x_axis_input + 1) % 4;
+            this.current_x_axis_input = AI.axis_input_options[Math.round(Math.random() * 2)];
         }
 
         // Only care if puck is approaching

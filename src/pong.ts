@@ -42,6 +42,9 @@ export default class Pong {
             puck_width, puck_height,
             this.center_x, this.center_y,
             3, [this.paddle_l, this.paddle_r]);
+
+        this.paddle_l.init();
+        this.paddle_r.init();
     }
 
     draw(ctx: CanvasRenderingContext2D): void {

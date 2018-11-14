@@ -2,8 +2,8 @@ import Input from "./input";
 import Pong from "./pong";
 
 export default class Paddle {
-    private left_boundary: number;
-    private right_boundary: number;
+    private left_boundary = 0;
+    private right_boundary = 0;
 
     constructor(
         public left: number,
@@ -12,13 +12,15 @@ export default class Paddle {
         public height: number,
         public input: Input,
         private pong: Pong
-    ) {
-        if (this.center_x < pong.center_x) {
+    ) {}
+
+    init(): void {
+        if (this.center_x < this.pong.center_x) {
             this.left_boundary = 0;
-            this.right_boundary = pong.center_x;
+            this.right_boundary = this.pong.center_x - this.pong.puck.width/2;
         } else {
-            this.left_boundary = pong.center_x;
-            this.right_boundary = pong.width;
+            this.left_boundary = this.pong.center_x + this.pong.puck.width/2;
+            this.right_boundary = this.pong.width;
         }
     }
 
