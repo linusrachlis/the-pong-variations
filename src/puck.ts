@@ -3,6 +3,7 @@ import Velocity from './velocity'
 
 export default class Puck {
     vel: Velocity
+    grabbed_by: Paddle | undefined
 
     get right(): number {
         return this.left + this.width
@@ -23,6 +24,10 @@ export default class Puck {
     }
 
     tick(): void {
+        // Don't move if grabbed -- paddle will apply
+        // movement (but keep velocity for when it's released)
+        if (this.grabbed_by !== undefined) return
+
         this.left += this.vel.x
         this.top += this.vel.y
     }
