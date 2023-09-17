@@ -2,6 +2,7 @@ import Pong from './pong'
 
 export class GameMode {
     grabbing = false
+    magnetic = false
 }
 
 window.addEventListener('load', () => {
@@ -16,12 +17,17 @@ window.addEventListener('load', () => {
     const grabbing_mode_checkbox = <HTMLInputElement>(
         document.getElementById('grabbing_mode')!
     )
+    const magnetic_mode_checkbox = <HTMLInputElement>(
+        document.getElementById('magnetic_mode')!
+    )
     const game_mode = new GameMode()
     const update_game_mode = (): void => {
         game_mode.grabbing = grabbing_mode_checkbox.checked
+        game_mode.magnetic = magnetic_mode_checkbox.checked
     }
     update_game_mode()
     grabbing_mode_checkbox.addEventListener('change', update_game_mode)
+    magnetic_mode_checkbox.addEventListener('change', update_game_mode)
 
     let pong: Pong | undefined
     let tick_interval: number

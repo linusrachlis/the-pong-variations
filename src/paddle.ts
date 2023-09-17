@@ -23,6 +23,7 @@ export default class Paddle {
     }
     get pulling(): boolean {
         return (
+            this.pong.game_mode.magnetic &&
             (this.moving_down || this.moving_up) &&
             !(this.moving_down && this.moving_up)
         )
@@ -37,7 +38,7 @@ export default class Paddle {
         return this.pong.game_mode.grabbing && this.trying_to_grab
     }
 
-    static readonly move_speed = 2
+    static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
 
     tick(): void {
         const puck = this.pong.puck
