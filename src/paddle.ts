@@ -2,6 +2,9 @@ import Input from './input'
 import Pong from './pong'
 
 export default class Paddle {
+    private left_boundary = 0
+    private right_boundary = 0
+
     constructor(
         public left: number,
         public top: number,
@@ -10,6 +13,25 @@ export default class Paddle {
         public input: Input,
         private pong: Pong
     ) {}
+
+    trying_to_grab = false
+    static readonly pull_force = 0.1
+
+    should_apply_grabbing(): boolean {
+        return this.pong.game_mode.grabbing && this.trying_to_grab
+    }
+
+    static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
+
+    init(): void {
+        if (this.center_x < this.pong.center_x) {
+            this.left_boundary = 0
+            this.right_boundary = this.pong.center_x - this.pong.puck.width / 2
+        } else {
+            this.left_boundary = this.pong.center_x + this.pong.puck.width / 2
+            this.right_boundary = this.pong.width
+        }
+    }
 
     get right(): number {
         return this.left + this.width
@@ -24,23 +46,25 @@ export default class Paddle {
         return this.top + this.height / 2
     }
     get pulling(): boolean {
+        // Paddle exerts attractive force on puck when moving
+        // in any direction: ((down XOR up) OR (left XOR right)).
+        // The xors are because both can be true but that results
+        // in standing still along that axis.
+        //
+        // TODO don't allow pulling by moving against a wall?
+        // (i.e. standing still)
         return (
-            this.pong.game_mode.magnetic &&
-            (this.moving_down || this.moving_up) &&
-            !(this.moving_down && this.moving_up)
+            ((this.moving_down || this.moving_up) &&
+                !(this.moving_down && this.moving_up)) ||
+            ((this.moving_right || this.moving_left) &&
+                !(this.moving_right && this.moving_left))
         )
     }
 
     moving_down = false
     moving_up = false
-    trying_to_grab = false
-    static readonly pull_force = 0.1
-
-    should_apply_grabbing(): boolean {
-        return this.pong.game_mode.grabbing && this.trying_to_grab
-    }
-
-    static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
+    moving_left = false
+    moving_right = false
 
     tick(): void {
         const puck = this.pong.puck
@@ -57,6 +81,20 @@ export default class Paddle {
             this.top -= Paddle.move_speed
             if (puck.grabbed_by === this) {
                 puck.top -= Paddle.move_speed
+            }
+        }
+
+        // 2D movement stuff
+        if (this.moving_left && this.left > this.left_boundary) {
+            this.left -= Paddle.move_speed
+            if (puck.grabbed_by === this) {
+                puck.left -= Paddle.move_speed
+            }
+        }
+        if (this.moving_right && this.right < this.right_boundary) {
+            this.left += Paddle.move_speed
+            if (puck.grabbed_by === this) {
+                puck.left += Paddle.move_speed
             }
         }
 

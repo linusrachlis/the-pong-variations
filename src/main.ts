@@ -85,46 +85,65 @@ window.addEventListener('load', () => {
     const handle_key_event = (e: KeyboardEvent): void => {
         if (pong === undefined) return
 
-        // This lower case is a thought for later. I want to use shift instead
-        // for grabbing. But then e.key may be capitals.
-        switch (e.key.toLowerCase()) {
-            // Movement
-            case 'q':
+        switch (e.code) {
+            // Movement: left paddle
+            case 'KeyW':
                 {
                     human_input_l.moving_up = e.type == 'keydown'
                 }
                 break
-            case 'z':
+            case 'KeyA':
+                {
+                    human_input_l.moving_left = e.type == 'keydown'
+                }
+                break
+            case 'KeyS':
                 {
                     human_input_l.moving_down = e.type == 'keydown'
                 }
                 break
-            case 'p':
+            case 'KeyD':
+                {
+                    human_input_l.moving_right = e.type == 'keydown'
+                }
+                break
+
+            // Movement: right paddle
+            case 'ArrowUp':
                 {
                     human_input_r.moving_up = e.type == 'keydown'
                 }
                 break
-            case ',':
+            case 'ArrowLeft':
+                {
+                    human_input_r.moving_left = e.type == 'keydown'
+                }
+                break
+            case 'ArrowDown':
                 {
                     human_input_r.moving_down = e.type == 'keydown'
                 }
                 break
+            case 'ArrowRight':
+                {
+                    human_input_r.moving_right = e.type == 'keydown'
+                }
+                break
 
             // Grabbing
-            case 'a':
+            case 'ShiftLeft':
                 {
                     pong.paddle_l.trying_to_grab = e.type == 'keydown'
                 }
                 break
-            case 'l':
+            case 'ShiftRight':
                 {
                     pong.paddle_r.trying_to_grab = e.type == 'keydown'
                 }
                 break
 
             // Restart
-            case ' ':
-            case 'Spacebar':
+            case 'Space':
                 {
                     if (e.type == 'keyup') new_game()
                 }
