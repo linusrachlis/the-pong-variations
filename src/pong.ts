@@ -48,8 +48,7 @@ export default class Pong {
         }
 
         const puck_width = 20,
-            puck_height = 20,
-            puck_y = this.center_y - Math.round(puck_height / 2)
+            puck_height = 20
         this.puck = new Puck(
             puck_width,
             puck_height,

@@ -1,4 +1,3 @@
-import Pong from './pong'
 import Paddle from './paddle'
 import Velocity from './velocity'
 
