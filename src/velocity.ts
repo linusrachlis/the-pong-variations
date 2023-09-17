@@ -4,10 +4,11 @@ export default class Velocity {
     constructor(
         public x: number,
         public y: number,
-        public readonly r: number
+        public r: number,
+        public readonly cap: number
     ) {}
 
-    static random_with_r(r: number): Velocity {
+    static random_with_r(r: number, cap: number): Velocity {
         let angle = -Math.PI / 4 + (Math.PI / 2) * Math.random()
         if (util.random_bool()) {
             // 50% chance of going to the left
@@ -15,7 +16,30 @@ export default class Velocity {
         }
         const x = Math.cos(angle) * r
         const y = Math.sin(angle) * r
-        return new Velocity(x, y, r)
+        return new Velocity(x, y, r, cap)
+    }
+
+    apply_force_toward(force: number, rel_x: number, rel_y: number): void {
+        const angle = Math.atan2(rel_y, rel_x)
+        const unit_x = Math.cos(angle)
+        const unit_y = Math.sin(angle)
+
+        // TODO right now force is per tick, maybe better to interpret force as
+        // "per second"?
+        let new_x = this.x + unit_x * force
+        let new_y = this.y + unit_y * force
+        let new_r = util.hypot(new_x, new_y)
+
+        // Cap speed, though
+        if (new_r > this.cap) {
+            new_x *= this.cap / new_r
+            new_y *= this.cap / new_r
+            new_r = this.cap
+        }
+
+        this.x = new_x
+        this.y = new_y
+        this.r = new_r
     }
 
     bend_up(bend_factor: number): void {
