@@ -1,3 +1,5 @@
+import Input from './input'
+import { PlayerSide } from './enums'
 import Puck from './puck'
 import Paddle from './paddle'
 import * as util from './util'
@@ -7,13 +9,16 @@ export default class Pong {
     puck: Puck
     paddle_l: Paddle
     paddle_r: Paddle
+    paddles: Record<PlayerSide, Paddle>
 
     is_over = false
 
     constructor(
         public game_mode: GameMode,
         public width: number,
-        public height: number
+        public height: number,
+        input_l: Input,
+        input_r: Input
     ) {
         const half_width = Math.floor(width / 2)
         const half_height = Math.floor(height / 2)
@@ -26,6 +31,7 @@ export default class Pong {
             paddle_y,
             paddle_width,
             paddle_height,
+            input_l,
             this
         )
         this.paddle_r = new Paddle(
@@ -33,8 +39,13 @@ export default class Pong {
             paddle_y,
             paddle_width,
             paddle_height,
+            input_r,
             this
         )
+        this.paddles = {
+            [PlayerSide.LEFT]: this.paddle_l,
+            [PlayerSide.RIGHT]: this.paddle_r,
+        }
 
         const puck_width = 20,
             puck_height = 20
