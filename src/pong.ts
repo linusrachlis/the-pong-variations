@@ -18,16 +18,6 @@ export default class Pong {
         const half_width = Math.floor(width / 2)
         const half_height = Math.floor(height / 2)
 
-        const puck_width = 20
-        const puck_height = 20
-        this.puck = new Puck(
-            puck_width,
-            puck_height,
-            half_width,
-            half_height,
-            3
-        )
-
         const paddle_width = 20,
             paddle_height = 100,
             paddle_y = half_height - Math.round(paddle_height / 2)
@@ -44,6 +34,17 @@ export default class Pong {
             paddle_width,
             paddle_height,
             this
+        )
+
+        const puck_width = 20,
+            puck_height = 20
+        this.puck = new Puck(
+            puck_width,
+            puck_height,
+            half_width,
+            half_height,
+            3,
+            [this.paddle_l, this.paddle_r]
         )
     }
 
