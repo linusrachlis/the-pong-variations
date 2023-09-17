@@ -80,12 +80,4 @@ window.addEventListener('load', () => {
 
     window.addEventListener('keydown', handle_key_event)
     window.addEventListener('keyup', handle_key_event)
-
-    // TODO better bounce angling
-    // - just base the angle on Y distance from paddle's centre
-    // - actually cap how vertical it can get
-    // TODO or "tractor beam"?
-    // TODO sound fx
-    // TODO lock physics while painting?
-    // TODO touch screen controls
 })
