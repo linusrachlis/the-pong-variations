@@ -1,4 +1,8 @@
 import Pong from './pong'
+import AI from './ai'
+import { PlayerInput, PlayerSide } from './enums'
+import HumanInput from './human_input'
+import Input from './input'
 
 export class GameMode {
     grabbing = false
@@ -30,6 +34,19 @@ window.addEventListener('load', () => {
     magnetic_mode_checkbox.addEventListener('change', update_game_mode)
 
     let pong: Pong | undefined
+
+    const human_input_l = new HumanInput()
+    const human_input_r = new HumanInput()
+    const human_inputs = {
+        [PlayerSide.LEFT]: human_input_l,
+        [PlayerSide.RIGHT]: human_input_r,
+    }
+
+    const player_inputs: Record<PlayerSide, Input> = {
+        [PlayerSide.LEFT]: human_input_l,
+        [PlayerSide.RIGHT]: new AI(),
+    }
+
     let tick_interval: number
 
     const paint = () => {
@@ -53,7 +70,13 @@ window.addEventListener('load', () => {
         if (pong !== undefined) {
             return // Won't restart if exists and isn't over
         }
-        pong = new Pong(game_mode, canvas.width, canvas.height)
+        pong = new Pong(
+            game_mode,
+            canvas.width,
+            canvas.height,
+            player_inputs[PlayerSide.LEFT],
+            player_inputs[PlayerSide.RIGHT]
+        )
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
     }
@@ -68,22 +91,22 @@ window.addEventListener('load', () => {
             // Movement
             case 'q':
                 {
-                    pong.paddle_l.moving_up = e.type == 'keydown'
+                    human_input_l.moving_up = e.type == 'keydown'
                 }
                 break
             case 'z':
                 {
-                    pong.paddle_l.moving_down = e.type == 'keydown'
+                    human_input_l.moving_down = e.type == 'keydown'
                 }
                 break
             case 'p':
                 {
-                    pong.paddle_r.moving_up = e.type == 'keydown'
+                    human_input_r.moving_up = e.type == 'keydown'
                 }
                 break
             case ',':
                 {
-                    pong.paddle_r.moving_down = e.type == 'keydown'
+                    human_input_r.moving_down = e.type == 'keydown'
                 }
                 break
 
@@ -111,4 +134,38 @@ window.addEventListener('load', () => {
 
     window.addEventListener('keydown', handle_key_event)
     window.addEventListener('keyup', handle_key_event)
+    window.addEventListener('click', (e: MouseEvent) => {
+        if (
+            e.target &&
+            e.target instanceof HTMLElement &&
+            e.target.matches('button.mode_switch')
+        ) {
+            const sidebar = <HTMLElement>e.target.closest('.sidebar')
+            const help_panel = <HTMLElement>sidebar.querySelector('.help')
+            const ai_panel = <HTMLElement>sidebar.querySelector('.ai_panel')
+            const side = <PlayerSide>e.target.dataset.side
+
+            switch (e.target.dataset.to) {
+                case PlayerInput.AI:
+                    {
+                        help_panel.classList.add('hidden_panel')
+                        ai_panel.classList.remove('hidden_panel')
+                        player_inputs[side] = new AI()
+                    }
+                    break
+                case PlayerInput.HUMAN:
+                    {
+                        ai_panel.classList.add('hidden_panel')
+                        help_panel.classList.remove('hidden_panel')
+                        player_inputs[side] = human_inputs[side]
+                    }
+                    break
+            }
+
+            if (pong !== undefined && !pong.is_over) {
+                // Hot-swap input
+                pong.paddles[side].input = player_inputs[side]
+            }
+        }
+    })
 })
