@@ -1,38 +1,44 @@
-import Paddle from "./paddle";
-import Velocity from "./velocity";
+import Paddle from './paddle'
+import Velocity from './velocity'
 
 export default class Puck {
-    vel: Velocity;
-    grabbed_by: Paddle | undefined;
+    vel: Velocity
+    grabbed_by: Paddle | undefined
 
-    get right(): number { return this.left + this.width; }
-    get bottom(): number { return this.top + this.height; }
+    get right(): number {
+        return this.left + this.width
+    }
+    get bottom(): number {
+        return this.top + this.height
+    }
 
     constructor(
-        public width: number, public height: number,
-        public left: number, public top: number,
+        public width: number,
+        public height: number,
+        public left: number,
+        public top: number,
         speed: number
     ) {
         // Calculate random initial vector with given speed.
-        this.vel = Velocity.random_with_r(speed);
+        this.vel = Velocity.random_with_r(speed)
     }
 
     tick(): void {
         // Don't move if grabbed -- paddle will apply
         // movement (but keep velocity for when it's released)
-        if (this.grabbed_by !== undefined) return;
+        if (this.grabbed_by !== undefined) return
 
-        this.left += this.vel.x;
-        this.top += this.vel.y;
+        this.left += this.vel.x
+        this.top += this.vel.y
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = "magenta";
+        ctx.fillStyle = 'magenta'
         ctx.fillRect(
             Math.round(this.left),
             Math.round(this.top),
             Math.round(this.width),
             Math.round(this.height)
-        );
+        )
     }
 }
