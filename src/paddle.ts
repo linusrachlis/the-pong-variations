@@ -1,5 +1,4 @@
 import Pong from './pong'
-import Puck from './puck'
 
 export default class Paddle {
     constructor(
@@ -19,7 +18,11 @@ export default class Paddle {
 
     moving_down = false
     moving_up = false
-    grabbing = false
+    trying_to_grab = false
+
+    should_apply_grabbing(): boolean {
+        return this.pong.game_mode.grabbing && this.trying_to_grab
+    }
 
     static readonly move_speed = 3
 
@@ -48,10 +51,10 @@ export default class Paddle {
             puck.top <= this.bottom &&
             puck.bottom >= this.top
         ) {
-            if (this.grabbing && puck.grabbed_by === undefined) {
+            if (this.should_apply_grabbing() && puck.grabbed_by === undefined) {
                 // Apply grab
                 puck.grabbed_by = this
-            } else if (!this.grabbing && puck.grabbed_by === this) {
+            } else if (!this.trying_to_grab && puck.grabbed_by === this) {
                 // Release
                 puck.grabbed_by = undefined
             }

@@ -1,7 +1,8 @@
 import Pong from './pong'
-import Paddle from './paddle'
-import Puck from './puck'
-import * as util from './util'
+
+export class GameMode {
+    grabbing = false
+}
 
 window.addEventListener('load', () => {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -11,6 +12,16 @@ window.addEventListener('load', () => {
         return
     }
     const tick_length = 1000 / 60
+
+    const grabbing_mode_checkbox = <HTMLInputElement>(
+        document.getElementById('grabbing_mode')!
+    )
+    const game_mode = new GameMode()
+    const update_game_mode = (): void => {
+        game_mode.grabbing = grabbing_mode_checkbox.checked
+    }
+    update_game_mode()
+    grabbing_mode_checkbox.addEventListener('change', update_game_mode)
 
     let pong: Pong | undefined
     let tick_interval: number
@@ -36,7 +47,7 @@ window.addEventListener('load', () => {
         if (pong !== undefined) {
             return // Won't restart if exists and isn't over
         }
-        pong = new Pong(canvas.width, canvas.height)
+        pong = new Pong(game_mode, canvas.width, canvas.height)
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
     }
@@ -45,7 +56,9 @@ window.addEventListener('load', () => {
     const handle_key_event = (e: KeyboardEvent): void => {
         if (pong === undefined) return
 
-        switch (e.key) {
+        // This lower case is a thought for later. I want to use shift instead
+        // for grabbing. But then e.key may be capitals.
+        switch (e.key.toLowerCase()) {
             // Movement
             case 'q':
                 {
@@ -71,12 +84,12 @@ window.addEventListener('load', () => {
             // Grabbing
             case 'a':
                 {
-                    pong.paddle_l.grabbing = e.type == 'keydown'
+                    pong.paddle_l.trying_to_grab = e.type == 'keydown'
                 }
                 break
             case 'l':
                 {
-                    pong.paddle_r.grabbing = e.type == 'keydown'
+                    pong.paddle_r.trying_to_grab = e.type == 'keydown'
                 }
                 break
 

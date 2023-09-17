@@ -1,7 +1,7 @@
-import Velocity from './velocity'
 import Puck from './puck'
 import Paddle from './paddle'
 import * as util from './util'
+import { GameMode } from './main'
 
 export default class Pong {
     puck: Puck
@@ -11,15 +11,15 @@ export default class Pong {
     is_over = false
 
     constructor(
+        public game_mode: GameMode,
         public width: number,
         public height: number
     ) {
-        const half_width = Math.floor(width / 2),
-            half_height = Math.floor(height / 2)
+        const half_width = Math.floor(width / 2)
+        const half_height = Math.floor(height / 2)
 
-        const puck_width = 20,
-            puck_height = 20,
-            puck_y = half_height - Math.round(puck_height / 2)
+        const puck_width = 20
+        const puck_height = 20
         this.puck = new Puck(
             puck_width,
             puck_height,
