@@ -1,7 +1,4 @@
 import Pong from './pong'
-import Paddle from './paddle'
-import Puck from './puck'
-import * as util from './util'
 
 window.addEventListener('load', () => {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas')
