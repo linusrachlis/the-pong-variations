@@ -85,35 +85,37 @@ window.addEventListener('load', () => {
     const handle_key_event = (e: KeyboardEvent): void => {
         if (pong === undefined) return
 
-        console.log(e.code, e.type)
+        // NOTE: horizonal movement is disabled pending
+        // https://github.com/linusrachlis/the-pong-variations/issues/11
+
         switch (e.code) {
             // Movement: left paddle
             case 'KeyW':
                 human_input_l.moving_up = e.type == 'keydown'
                 break
-            case 'KeyA':
-                human_input_l.moving_left = e.type == 'keydown'
-                break
+            // case 'KeyA':
+            //     human_input_l.moving_left = e.type == 'keydown'
+            //     break
             case 'KeyS':
                 human_input_l.moving_down = e.type == 'keydown'
                 break
-            case 'KeyD':
-                human_input_l.moving_right = e.type == 'keydown'
-                break
+            // case 'KeyD':
+            //     human_input_l.moving_right = e.type == 'keydown'
+            //     break
 
             // Movement: right paddle
             case 'ArrowUp':
                 human_input_r.moving_up = e.type == 'keydown'
                 break
-            case 'ArrowLeft':
-                human_input_r.moving_left = e.type == 'keydown'
-                break
+            // case 'ArrowLeft':
+            //     human_input_r.moving_left = e.type == 'keydown'
+            //     break
             case 'ArrowDown':
                 human_input_r.moving_down = e.type == 'keydown'
                 break
-            case 'ArrowRight':
-                human_input_r.moving_right = e.type == 'keydown'
-                break
+            // case 'ArrowRight':
+            //     human_input_r.moving_right = e.type == 'keydown'
+            //     break
 
             // Grabbing
             case 'ShiftLeft':

@@ -29,27 +29,8 @@ export default class AI implements Input {
         [Axis.Y]: 0,
     }
 
-    private current_x_axis_input = AxisInput.STOP
-    static readonly axis_input_options = [
-        AxisInput.STOP,
-        AxisInput.MINUS,
-        AxisInput.PLUS,
-    ]
-
     tick(paddle: Paddle, pong: Pong): void {
         const puck = pong.puck
-
-        // Alpha 2 AI for X axis movement: randomly choose an input, apply
-        // until accepted, repeat.
-        const input_accepted = this.input_debounce(
-            Axis.X,
-            paddle,
-            this.current_x_axis_input
-        )
-        if (input_accepted) {
-            this.current_x_axis_input =
-                AI.axis_input_options[Math.round(Math.random() * 2)]
-        }
 
         // Only care if puck is approaching
         if (
@@ -70,14 +51,7 @@ export default class AI implements Input {
         }
     }
 
-    /**
-    @return boolean Whether this resulted in actually moving
-    */
-    private input_debounce(
-        axis: Axis,
-        paddle: Paddle,
-        input: AxisInput
-    ): boolean {
+    private input_debounce(axis: Axis, paddle: Paddle, input: AxisInput): void {
         if (input == this.last_inputs[axis]) {
             this.input_counters[axis]++
             if (this.input_counters[axis] >= AI.move_request_thresholds[axis]) {
@@ -96,12 +70,10 @@ export default class AI implements Input {
                         break
                 }
                 this.input_counters[axis] = 0
-                return true
             }
         } else {
             this.last_inputs[axis] = input
             this.input_counters[axis] = 1
         }
-        return false
     }
 }
