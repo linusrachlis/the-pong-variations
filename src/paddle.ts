@@ -59,11 +59,22 @@ export default class Paddle {
         //
         // TODO don't allow pulling by moving against a wall?
         // (i.e. standing still)
+        //
+        // prettier-ignore
         return (
-            ((this.moving_down || this.moving_up) &&
-                !(this.moving_down && this.moving_up)) ||
-            ((this.moving_right || this.moving_left) &&
-                !(this.moving_right && this.moving_left))
+            this.pong.game_mode.magnetic
+            &&
+            (
+                (
+                    (this.moving_down || this.moving_up) &&
+                    !(this.moving_down && this.moving_up)
+                )
+                ||
+                (
+                    (this.moving_right || this.moving_left) &&
+                    !(this.moving_right && this.moving_left)
+                )
+            )
         )
     }
 
