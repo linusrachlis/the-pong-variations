@@ -1,6 +1,6 @@
+package.json
+package-lock.json
+
 # Ignore artifacts:
 build
 coverage
-
-# Ignore all HTML files:
-**/*.html
