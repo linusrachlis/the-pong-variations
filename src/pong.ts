@@ -26,8 +26,8 @@ export default class Pong {
         this.center_y = height / 2
 
         const paddle_width = 20
-        const    paddle_height = 100
-            const paddle_y = this.center_y - Math.round(paddle_height / 2)
+        const paddle_height = 100
+        const paddle_y = this.center_y - Math.round(paddle_height / 2)
         this.paddle_l = new Paddle(
             0,
             paddle_y,

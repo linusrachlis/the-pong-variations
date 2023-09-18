@@ -85,68 +85,49 @@ window.addEventListener('load', () => {
     const handle_key_event = (e: KeyboardEvent): void => {
         if (pong === undefined) return
 
+        console.log(e.code, e.type)
         switch (e.code) {
             // Movement: left paddle
             case 'KeyW':
-                {
-                    human_input_l.moving_up = e.type == 'keydown'
-                }
+                human_input_l.moving_up = e.type == 'keydown'
                 break
             case 'KeyA':
-                {
-                    human_input_l.moving_left = e.type == 'keydown'
-                }
+                human_input_l.moving_left = e.type == 'keydown'
                 break
             case 'KeyS':
-                {
-                    human_input_l.moving_down = e.type == 'keydown'
-                }
+                human_input_l.moving_down = e.type == 'keydown'
                 break
             case 'KeyD':
-                {
-                    human_input_l.moving_right = e.type == 'keydown'
-                }
+                human_input_l.moving_right = e.type == 'keydown'
                 break
 
             // Movement: right paddle
             case 'ArrowUp':
-                {
-                    human_input_r.moving_up = e.type == 'keydown'
-                }
+                human_input_r.moving_up = e.type == 'keydown'
                 break
             case 'ArrowLeft':
-                {
-                    human_input_r.moving_left = e.type == 'keydown'
-                }
+                human_input_r.moving_left = e.type == 'keydown'
                 break
             case 'ArrowDown':
-                {
-                    human_input_r.moving_down = e.type == 'keydown'
-                }
+                human_input_r.moving_down = e.type == 'keydown'
                 break
             case 'ArrowRight':
-                {
-                    human_input_r.moving_right = e.type == 'keydown'
-                }
+                human_input_r.moving_right = e.type == 'keydown'
                 break
 
             // Grabbing
             case 'ShiftLeft':
-                {
-                    pong.paddle_l.trying_to_grab = e.type == 'keydown'
-                }
+                human_input_l.trying_to_grab = e.type == 'keydown'
                 break
             case 'ShiftRight':
-                {
-                    pong.paddle_r.trying_to_grab = e.type == 'keydown'
-                }
+                human_input_r.trying_to_grab = e.type == 'keydown'
                 break
 
             // Restart
             case 'Space':
-                {
-                    if (e.type == 'keyup') new_game()
-                }
+                // Using keyup rather than keydown so it doesn't repeat when the
+                // key is held
+                if (e.type == 'keyup') new_game()
                 break
         }
     }

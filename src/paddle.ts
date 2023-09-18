@@ -2,8 +2,19 @@ import Input from './input'
 import Pong from './pong'
 
 export default class Paddle {
+    static readonly pull_force = 0.1
+    static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
+
     private left_boundary = 0
     private right_boundary = 0
+
+    public moving_down = false
+    public moving_up = false
+    public moving_left = false
+    public moving_right = false
+    public trying_to_grab = false
+
+    public debugMode = false
 
     constructor(
         public left: number,
@@ -13,15 +24,6 @@ export default class Paddle {
         public input: Input,
         private pong: Pong
     ) {}
-
-    trying_to_grab = false
-    static readonly pull_force = 0.1
-
-    should_apply_grabbing(): boolean {
-        return this.pong.game_mode.grabbing && this.trying_to_grab
-    }
-
-    static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
 
     init(): void {
         if (this.center_x < this.pong.center_x) {
@@ -36,15 +38,19 @@ export default class Paddle {
     get right(): number {
         return this.left + this.width
     }
+
     get bottom(): number {
         return this.top + this.height
     }
+
     get center_x(): number {
         return this.left + this.width / 2
     }
+
     get center_y(): number {
         return this.top + this.height / 2
     }
+
     get pulling(): boolean {
         // Paddle exerts attractive force on puck when moving
         // in any direction: ((down XOR up) OR (left XOR right)).
@@ -61,13 +67,31 @@ export default class Paddle {
         )
     }
 
-    moving_down = false
-    moving_up = false
-    moving_left = false
-    moving_right = false
+    get should_apply_grabbing(): boolean {
+        return this.pong.game_mode.grabbing && this.trying_to_grab
+    }
+
+    debugLog(): void {
+        const {
+            moving_down,
+            moving_up,
+            moving_left,
+            moving_right,
+            trying_to_grab,
+        } = this
+        console.log({
+            moving_down,
+            moving_up,
+            moving_left,
+            moving_right,
+            trying_to_grab,
+        })
+    }
 
     tick(): void {
         const puck = this.pong.puck
+
+        if (this.debugMode) this.debugLog()
 
         // Apply paddle movement (and apply to puck too, if this paddle's
         // grabbing it)
@@ -105,88 +129,94 @@ export default class Paddle {
             puck.top <= this.bottom &&
             puck.bottom >= this.top
         ) {
-            if (this.should_apply_grabbing() && puck.grabbed_by === undefined) {
+            if (this.should_apply_grabbing && puck.grabbed_by === undefined) {
                 // Apply grab
                 puck.grabbed_by = this
-            } else if (!this.trying_to_grab && puck.grabbed_by === this) {
+            } else if (
+                !this.should_apply_grabbing &&
+                puck.grabbed_by === this
+            ) {
                 // Release
                 puck.grabbed_by = undefined
             }
 
             // If puck is grabbed, don't do bounce calculation now
-            if (puck.grabbed_by !== undefined) return
-
-            let x_overlap: number,
-                y_overlap: number,
-                x_teleport: number,
-                y_teleport: number,
-                bend_up_factor: number | undefined,
-                bend_down_factor: number | undefined
-
-            const right_overlap = this.right - puck.left
-            const left_overlap = puck.right - this.left
-
-            // Is the puck at the paddle's left or right edge?
-            // The answer is whichever overlap is lesser.
-            if (right_overlap < left_overlap) {
-                x_teleport = this.right
-                x_overlap = right_overlap
-            } else {
-                x_teleport = this.left - puck.width
-                x_overlap = left_overlap
-            }
-
-            const bottom_overlap = this.bottom - puck.top
-            const top_overlap = puck.bottom - this.top
-
-            // Is the puck at the paddle's top or bottom edge?
-            // Again, it's edge with the lesser overlap.
-            if (bottom_overlap < top_overlap) {
-                y_teleport = this.bottom
-                y_overlap = bottom_overlap
-
-                if (bottom_overlap < puck.height * 2) {
-                    // When puck is just off the paddle's bottom, angle it
-                    // downwards in proportion to how little of it is overlapping.
-                    bend_down_factor = 1 - bottom_overlap / (puck.height * 2)
-                }
-            } else {
-                y_teleport = this.top - puck.height
-                y_overlap = top_overlap
-
-                if (top_overlap < puck.height * 2) {
-                    // When puck is just off the paddle's TOP, angle it
-                    // UPwards in proportion to how little of it is overlapping.
-                    bend_up_factor = 1 - top_overlap / (puck.height * 2)
-                }
-            }
-
-            // Is the puck hitting a vertical or horizontal edge?
-            // Take the lesser of the overlap results from above to find out.
-            //
-            // Note: if they're equal, both axes get reversed,
-            // because the puck is exactly hitting a corner!
-            //
-            // Also, move the puck to line up exactly with the edge it's
-            // bouncing off, so the paddle appears to push it if it's moving.
-            // (This also avoids the problem of the puck getting stuck inside
-            // the paddle in a bouncing loop.)
-            if (x_overlap <= y_overlap) {
-                puck.left = x_teleport
-                puck.vel.x *= -1
-
-                if (bend_up_factor !== undefined) {
-                    puck.vel.bend_up(bend_up_factor)
-                } else if (bend_down_factor !== undefined) {
-                    puck.vel.bend_down(bend_down_factor)
-                }
-            } else if (x_overlap >= y_overlap) {
-                puck.top = y_teleport
-                puck.vel.y *= -1
-            }
+            if (puck.grabbed_by === undefined) this.calculateBounce()
         }
 
         this.input.tick(this, this.pong)
+    }
+
+    private calculateBounce(): void {
+        const puck = this.pong.puck
+        let x_overlap: number,
+            y_overlap: number,
+            x_teleport: number,
+            y_teleport: number,
+            bend_up_factor: number | undefined,
+            bend_down_factor: number | undefined
+
+        const right_overlap = this.right - puck.left
+        const left_overlap = puck.right - this.left
+
+        // Is the puck at the paddle's left or right edge?
+        // The answer is whichever overlap is lesser.
+        if (right_overlap < left_overlap) {
+            x_teleport = this.right
+            x_overlap = right_overlap
+        } else {
+            x_teleport = this.left - puck.width
+            x_overlap = left_overlap
+        }
+
+        const bottom_overlap = this.bottom - puck.top
+        const top_overlap = puck.bottom - this.top
+
+        // Is the puck at the paddle's top or bottom edge?
+        // Again, it's edge with the lesser overlap.
+        if (bottom_overlap < top_overlap) {
+            y_teleport = this.bottom
+            y_overlap = bottom_overlap
+
+            if (bottom_overlap < puck.height * 2) {
+                // When puck is just off the paddle's bottom, angle it
+                // downwards in proportion to how little of it is overlapping.
+                bend_down_factor = 1 - bottom_overlap / (puck.height * 2)
+            }
+        } else {
+            y_teleport = this.top - puck.height
+            y_overlap = top_overlap
+
+            if (top_overlap < puck.height * 2) {
+                // When puck is just off the paddle's TOP, angle it
+                // UPwards in proportion to how little of it is overlapping.
+                bend_up_factor = 1 - top_overlap / (puck.height * 2)
+            }
+        }
+
+        // Is the puck hitting a vertical or horizontal edge?
+        // Take the lesser of the overlap results from above to find out.
+        //
+        // Note: if they're equal, both axes get reversed,
+        // because the puck is exactly hitting a corner!
+        //
+        // Also, move the puck to line up exactly with the edge it's
+        // bouncing off, so the paddle appears to push it if it's moving.
+        // (This also avoids the problem of the puck getting stuck inside
+        // the paddle in a bouncing loop.)
+        if (x_overlap <= y_overlap) {
+            puck.left = x_teleport
+            puck.vel.x *= -1
+
+            if (bend_up_factor !== undefined) {
+                puck.vel.bend_up(bend_up_factor)
+            } else if (bend_down_factor !== undefined) {
+                puck.vel.bend_down(bend_down_factor)
+            }
+        } else if (x_overlap >= y_overlap) {
+            puck.top = y_teleport
+            puck.vel.y *= -1
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D): void {
