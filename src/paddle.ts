@@ -14,8 +14,6 @@ export default class Paddle {
     public moving_right = false
     public trying_to_grab = false
 
-    public debugMode = false
-
     constructor(
         public left: number,
         public top: number,
@@ -82,27 +80,8 @@ export default class Paddle {
         return this.pong.game_mode.grabbing && this.trying_to_grab
     }
 
-    debugLog(): void {
-        const {
-            moving_down,
-            moving_up,
-            moving_left,
-            moving_right,
-            trying_to_grab,
-        } = this
-        console.log({
-            moving_down,
-            moving_up,
-            moving_left,
-            moving_right,
-            trying_to_grab,
-        })
-    }
-
     tick(): void {
         const puck = this.pong.puck
-
-        if (this.debugMode) this.debugLog()
 
         // Apply paddle movement (and apply to puck too, if this paddle's
         // grabbing it)
