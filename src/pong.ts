@@ -62,22 +62,4 @@ export default class Pong {
         this.paddle_l.init()
         this.paddle_r.init()
     }
-
-    tick(): void {
-        this.puck.tick()
-        this.paddle_l.tick()
-        this.paddle_r.tick()
-
-        // TODO don't reverse vel multiple times in single tick
-
-        // Puck/ceiling or puck/floor collision check
-        if (this.puck.top <= 0 || this.puck.bottom >= this.height) {
-            this.puck.vel.y *= -1
-        }
-
-        // Puck/wall collision check (victory condition)
-        if (this.puck.left <= 0 || this.puck.right >= this.width) {
-            this.is_over = true
-        }
-    }
 }

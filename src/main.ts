@@ -4,6 +4,7 @@ import { PlayerInput, PlayerSide } from './enums'
 import HumanInput from './human_input'
 import Input from './input'
 import { draw_game } from './drawing'
+import { gameplay_tick } from './gameplay'
 
 export class GameMode {
     grabbing = false
@@ -61,7 +62,7 @@ window.addEventListener('load', () => {
             clearInterval(tick_interval)
             return
         }
-        pong.tick()
+        gameplay_tick(pong)
     }
 
     const new_game = () => {
