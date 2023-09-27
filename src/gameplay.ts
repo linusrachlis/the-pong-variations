@@ -3,7 +3,7 @@ import Pong from './pong'
 import Puck from './puck'
 
 export const gameplay_tick = (game: Pong) => {
-    game.puck.tick()
+    puck_tick(game.puck, [game.paddle_l, game.paddle_r])
     paddle_tick(game, game.paddle_l, game.puck)
     paddle_tick(game, game.paddle_r, game.puck)
 
@@ -73,4 +73,23 @@ const paddle_tick = (game: Pong, paddle: Paddle, puck: Puck): void => {
     }
 
     paddle.input.tick(paddle, game)
+}
+
+const puck_tick = (puck: Puck, paddles: Paddle[]): void => {
+    // Don't move if grabbed -- paddle will apply
+    // movement (but keep velocity for when it's released)
+    if (puck.grabbed_by !== undefined) return
+
+    // Apply current velocity
+    puck.left += puck.vel.x
+    puck.top += puck.vel.y
+
+    // Apply gravity toward any moving paddle
+    for (const paddle of paddles) {
+        if (paddle.pulling) {
+            const rel_x = paddle.center_x - puck.center_x
+            const rel_y = paddle.center_y - puck.center_y
+            puck.vel.apply_force_toward(Paddle.pull_force, rel_x, rel_y)
+        }
+    }
 }

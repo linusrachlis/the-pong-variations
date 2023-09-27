@@ -55,8 +55,7 @@ export default class Pong {
             puck_height,
             this.center_x,
             this.center_y,
-            3,
-            [this.paddle_l, this.paddle_r]
+            3
         )
 
         this.paddle_l.init()
