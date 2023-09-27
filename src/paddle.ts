@@ -208,9 +208,4 @@ export default class Paddle {
             puck.vel.y *= -1
         }
     }
-
-    draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = this.pulling ? 'yellow' : 'limegreen'
-        ctx.fillRect(this.left, this.top, this.width, this.height)
-    }
 }

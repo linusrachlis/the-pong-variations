@@ -3,7 +3,6 @@ import Input from './input'
 import { GameMode } from './main'
 import Paddle from './paddle'
 import Puck from './puck'
-import * as util from './util'
 
 export default class Pong {
     puck: Puck
@@ -62,30 +61,6 @@ export default class Pong {
 
         this.paddle_l.init()
         this.paddle_r.init()
-    }
-
-    draw(ctx: CanvasRenderingContext2D): void {
-        ctx.clearRect(0, 0, this.width, this.height)
-        this.paddle_l.draw(ctx)
-        this.paddle_r.draw(ctx)
-        this.puck.draw(ctx)
-
-        if (this.is_over) {
-            util.paint_text(
-                ctx,
-                'GAME OVER!',
-                'bold 48px sans-serif',
-                this.width / 2,
-                this.height / 2
-            )
-            util.paint_text(
-                ctx,
-                'Space to restart',
-                '16px sans-serif',
-                this.width / 2,
-                this.height / 2 + 48
-            )
-        }
     }
 
     tick(): void {

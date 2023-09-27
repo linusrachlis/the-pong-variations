@@ -3,6 +3,7 @@ import AI from './ai'
 import { PlayerInput, PlayerSide } from './enums'
 import HumanInput from './human_input'
 import Input from './input'
+import { draw_game } from './drawing'
 
 export class GameMode {
     grabbing = false
@@ -51,7 +52,7 @@ window.addEventListener('load', () => {
 
     const paint = () => {
         if (pong === undefined) return
-        pong.draw(ctx)
+        draw_game(ctx, pong)
         if (!pong.is_over) window.requestAnimationFrame(paint)
     }
 

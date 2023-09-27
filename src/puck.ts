@@ -48,14 +48,4 @@ export default class Puck {
             }
         }
     }
-
-    draw(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = 'magenta'
-        ctx.fillRect(
-            Math.round(this.left),
-            Math.round(this.top),
-            Math.round(this.width),
-            Math.round(this.height)
-        )
-    }
 }
