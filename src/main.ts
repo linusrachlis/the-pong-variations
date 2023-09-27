@@ -4,7 +4,7 @@ import { PlayerInput, PlayerSide } from './enums'
 import HumanInput from './human_input'
 import Input from './input'
 import { draw_game } from './drawing'
-import { gameplay_tick } from './gameplay'
+import { gameplay_tick, input_tick } from './gameplay'
 
 export class GameMode {
     grabbing = false
@@ -44,10 +44,10 @@ window.addEventListener('load', () => {
         [PlayerSide.RIGHT]: human_input_r,
     }
 
-    const player_inputs: Record<PlayerSide, Input> = {
-        [PlayerSide.LEFT]: human_input_l,
-        [PlayerSide.RIGHT]: new AI(),
-    }
+    const player_inputs = new Map<PlayerSide, Input>([
+        [PlayerSide.LEFT, human_input_l],
+        [PlayerSide.RIGHT, new AI()],
+    ])
 
     let tick_interval: number
 
@@ -62,6 +62,7 @@ window.addEventListener('load', () => {
             clearInterval(tick_interval)
             return
         }
+        input_tick(pong)
         gameplay_tick(pong)
     }
 
@@ -72,13 +73,9 @@ window.addEventListener('load', () => {
         if (pong !== undefined) {
             return // Won't restart if exists and isn't over
         }
-        pong = new Pong(
-            game_mode,
-            canvas.width,
-            canvas.height,
-            player_inputs[PlayerSide.LEFT],
-            player_inputs[PlayerSide.RIGHT]
-        )
+        // FIXME: create init_game func instead and flatten the graph of
+        // constructors/inits
+        pong = new Pong(game_mode, canvas.width, canvas.height, player_inputs)
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
     }
@@ -154,21 +151,16 @@ window.addEventListener('load', () => {
                     {
                         help_panel.classList.add('hidden_panel')
                         ai_panel.classList.remove('hidden_panel')
-                        player_inputs[side] = new AI()
+                        player_inputs.set(side, new AI())
                     }
                     break
                 case PlayerInput.HUMAN:
                     {
                         ai_panel.classList.add('hidden_panel')
                         help_panel.classList.remove('hidden_panel')
-                        player_inputs[side] = human_inputs[side]
+                        player_inputs.set(side, human_inputs[side])
                     }
                     break
-            }
-
-            if (pong !== undefined && !pong.is_over) {
-                // Hot-swap input
-                pong.paddles[side].input = player_inputs[side]
             }
         }
     })

@@ -2,6 +2,12 @@ import Paddle from './paddle'
 import Pong from './pong'
 import Puck from './puck'
 
+export const input_tick = (game: Pong) => {
+    for (const [side, input] of game.inputs) {
+        input.tick(game.paddles[side], game)
+    }
+}
+
 export const gameplay_tick = (game: Pong) => {
     puck_tick(game.puck, [game.paddle_l, game.paddle_r])
     paddle_tick(game, game.paddle_l, game.puck)
@@ -71,8 +77,6 @@ const paddle_tick = (game: Pong, paddle: Paddle, puck: Puck): void => {
         // If puck is grabbed, don't do bounce calculation now
         if (puck.grabbed_by === undefined) paddle.calculateBounce()
     }
-
-    paddle.input.tick(paddle, game)
 }
 
 const puck_tick = (puck: Puck, paddles: Paddle[]): void => {

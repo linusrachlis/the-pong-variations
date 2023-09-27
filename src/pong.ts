@@ -18,8 +18,7 @@ export default class Pong {
         public game_mode: GameMode,
         public width: number,
         public height: number,
-        input_l: Input,
-        input_r: Input
+        public inputs: Map<PlayerSide, Input>
     ) {
         this.center_x = width / 2
         this.center_y = height / 2
@@ -32,7 +31,6 @@ export default class Pong {
             paddle_y,
             paddle_width,
             paddle_height,
-            input_l,
             this
         )
         this.paddle_r = new Paddle(
@@ -40,7 +38,6 @@ export default class Pong {
             paddle_y,
             paddle_width,
             paddle_height,
-            input_r,
             this
         )
         this.paddles = {

@@ -1,4 +1,3 @@
-import Input from './input'
 import Pong from './pong'
 
 export default class Paddle {
@@ -19,7 +18,6 @@ export default class Paddle {
         public top: number,
         public width: number,
         public height: number,
-        public input: Input,
         private pong: Pong
     ) {}
 
