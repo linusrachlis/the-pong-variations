@@ -1,9 +1,11 @@
+import Paddle from './paddle'
 import Pong from './pong'
+import Puck from './puck'
 
 export const gameplay_tick = (game: Pong) => {
     game.puck.tick()
-    game.paddle_l.tick()
-    game.paddle_r.tick()
+    paddle_tick(game, game.paddle_l, game.puck)
+    paddle_tick(game, game.paddle_r, game.puck)
 
     // TODO don't reverse vel multiple times in single tick
 
@@ -16,4 +18,59 @@ export const gameplay_tick = (game: Pong) => {
     if (game.puck.left <= 0 || game.puck.right >= game.width) {
         game.is_over = true
     }
+}
+
+const paddle_tick = (game: Pong, paddle: Paddle, puck: Puck): void => {
+    // Apply paddle movement (and apply to puck too, if paddle paddle's
+    // grabbing it)
+    if (paddle.moving_down && paddle.bottom < game.height) {
+        paddle.top += Paddle.move_speed
+        if (puck.grabbed_by === paddle) {
+            puck.top += Paddle.move_speed
+        }
+    }
+    if (paddle.moving_up && paddle.top > 0) {
+        paddle.top -= Paddle.move_speed
+        if (puck.grabbed_by === paddle) {
+            puck.top -= Paddle.move_speed
+        }
+    }
+
+    // 2D movement stuff
+    if (paddle.moving_left && paddle.left > paddle.left_boundary) {
+        paddle.left -= Paddle.move_speed
+        if (puck.grabbed_by === paddle) {
+            puck.left -= Paddle.move_speed
+        }
+    }
+    if (paddle.moving_right && paddle.right < paddle.right_boundary) {
+        paddle.left += Paddle.move_speed
+        if (puck.grabbed_by === paddle) {
+            puck.left += Paddle.move_speed
+        }
+    }
+
+    // Is the puck touching or overlapping paddle paddle at all?
+    if (
+        puck.left <= paddle.right &&
+        puck.right >= paddle.left &&
+        puck.top <= paddle.bottom &&
+        puck.bottom >= paddle.top
+    ) {
+        if (paddle.should_apply_grabbing && puck.grabbed_by === undefined) {
+            // Apply grab
+            puck.grabbed_by = paddle
+        } else if (
+            !paddle.should_apply_grabbing &&
+            puck.grabbed_by === paddle
+        ) {
+            // Release
+            puck.grabbed_by = undefined
+        }
+
+        // If puck is grabbed, don't do bounce calculation now
+        if (puck.grabbed_by === undefined) paddle.calculateBounce()
+    }
+
+    paddle.input.tick(paddle, game)
 }

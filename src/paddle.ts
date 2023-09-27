@@ -5,8 +5,8 @@ export default class Paddle {
     static readonly pull_force = 0.1
     static readonly move_speed = 3 // should maybe be 2 in magnetic mode?
 
-    private left_boundary = 0
-    private right_boundary = 0
+    public left_boundary = 0
+    public right_boundary = 0
 
     public moving_down = false
     public moving_up = false
@@ -80,64 +80,8 @@ export default class Paddle {
         return this.pong.game_mode.grabbing && this.trying_to_grab
     }
 
-    tick(): void {
-        const puck = this.pong.puck
-
-        // Apply paddle movement (and apply to puck too, if this paddle's
-        // grabbing it)
-        if (this.moving_down && this.bottom < this.pong.height) {
-            this.top += Paddle.move_speed
-            if (puck.grabbed_by === this) {
-                puck.top += Paddle.move_speed
-            }
-        }
-        if (this.moving_up && this.top > 0) {
-            this.top -= Paddle.move_speed
-            if (puck.grabbed_by === this) {
-                puck.top -= Paddle.move_speed
-            }
-        }
-
-        // 2D movement stuff
-        if (this.moving_left && this.left > this.left_boundary) {
-            this.left -= Paddle.move_speed
-            if (puck.grabbed_by === this) {
-                puck.left -= Paddle.move_speed
-            }
-        }
-        if (this.moving_right && this.right < this.right_boundary) {
-            this.left += Paddle.move_speed
-            if (puck.grabbed_by === this) {
-                puck.left += Paddle.move_speed
-            }
-        }
-
-        // Is the puck touching or overlapping this paddle at all?
-        if (
-            puck.left <= this.right &&
-            puck.right >= this.left &&
-            puck.top <= this.bottom &&
-            puck.bottom >= this.top
-        ) {
-            if (this.should_apply_grabbing && puck.grabbed_by === undefined) {
-                // Apply grab
-                puck.grabbed_by = this
-            } else if (
-                !this.should_apply_grabbing &&
-                puck.grabbed_by === this
-            ) {
-                // Release
-                puck.grabbed_by = undefined
-            }
-
-            // If puck is grabbed, don't do bounce calculation now
-            if (puck.grabbed_by === undefined) this.calculateBounce()
-        }
-
-        this.input.tick(this, this.pong)
-    }
-
-    private calculateBounce(): void {
+    // FIXME: factor me out too
+    public calculateBounce(): void {
         const puck = this.pong.puck
         let x_overlap: number,
             y_overlap: number,
