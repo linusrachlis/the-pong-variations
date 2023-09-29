@@ -1,6 +1,6 @@
 import * as util from './util'
 
-export default class Velocity {
+export class Velocity {
     constructor(
         public x: number,
         public y: number,

@@ -1,13 +1,9 @@
-import Pong from './pong'
+import { GameMode, GameState } from './state'
 import AI from './ai'
 import { PlayerInput, PlayerSide } from './enums'
-import HumanInput from './human_input'
-import Input from './input'
-
-export class GameMode {
-    grabbing = false
-    magnetic = false
-}
+import { HumanInput, Input, InputMap } from './input'
+import { draw_game } from './drawing'
+import { gameplay_tick, init_game, input_tick } from './gameplay'
 
 window.addEventListener('load', () => {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -33,7 +29,7 @@ window.addEventListener('load', () => {
     grabbing_mode_checkbox.addEventListener('change', update_game_mode)
     magnetic_mode_checkbox.addEventListener('change', update_game_mode)
 
-    let pong: Pong | undefined
+    let game_state: GameState | undefined
 
     const human_input_l = new HumanInput()
     const human_input_r = new HumanInput()
@@ -42,40 +38,40 @@ window.addEventListener('load', () => {
         [PlayerSide.RIGHT]: human_input_r,
     }
 
-    const player_inputs: Record<PlayerSide, Input> = {
-        [PlayerSide.LEFT]: human_input_l,
-        [PlayerSide.RIGHT]: new AI(),
-    }
+    const player_inputs: InputMap = new Map<PlayerSide, Input>([
+        [PlayerSide.LEFT, human_input_l],
+        [PlayerSide.RIGHT, new AI()],
+    ])
 
     let tick_interval: number
 
     const paint = () => {
-        if (pong === undefined) return
-        pong.draw(ctx)
-        if (!pong.is_over) window.requestAnimationFrame(paint)
+        if (game_state === undefined) return
+        draw_game(ctx, game_state)
+        if (!game_state.is_over) window.requestAnimationFrame(paint)
     }
 
     const tick = () => {
-        if (pong === undefined || pong.is_over) {
+        if (game_state === undefined || game_state.is_over) {
             clearInterval(tick_interval)
             return
         }
-        pong.tick()
+        input_tick(game_state)
+        gameplay_tick(game_state)
     }
 
     const new_game = () => {
-        if (pong !== undefined && pong.is_over) {
-            pong = undefined
+        if (game_state !== undefined && game_state.is_over) {
+            game_state = undefined
         }
-        if (pong !== undefined) {
+        if (game_state !== undefined) {
             return // Won't restart if exists and isn't over
         }
-        pong = new Pong(
+        game_state = init_game(
             game_mode,
             canvas.width,
             canvas.height,
-            player_inputs[PlayerSide.LEFT],
-            player_inputs[PlayerSide.RIGHT]
+            player_inputs
         )
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
@@ -83,7 +79,7 @@ window.addEventListener('load', () => {
     new_game()
 
     const handle_key_event = (e: KeyboardEvent): void => {
-        if (pong === undefined) return
+        if (game_state === undefined) return
 
         // NOTE: horizonal movement is disabled pending
         // https://github.com/linusrachlis/the-pong-variations/issues/11
@@ -152,21 +148,16 @@ window.addEventListener('load', () => {
                     {
                         help_panel.classList.add('hidden_panel')
                         ai_panel.classList.remove('hidden_panel')
-                        player_inputs[side] = new AI()
+                        player_inputs.set(side, new AI())
                     }
                     break
                 case PlayerInput.HUMAN:
                     {
                         ai_panel.classList.add('hidden_panel')
                         help_panel.classList.remove('hidden_panel')
-                        player_inputs[side] = human_inputs[side]
+                        player_inputs.set(side, human_inputs[side])
                     }
                     break
-            }
-
-            if (pong !== undefined && !pong.is_over) {
-                // Hot-swap input
-                pong.paddles[side].input = player_inputs[side]
             }
         }
     })
