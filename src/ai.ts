@@ -1,6 +1,5 @@
-import Pong from './pong'
-import Paddle from './paddle'
-import Input from './input'
+import { Input } from './input'
+import { Paddle, GameState } from './state'
 
 const enum Axis {
     X,
@@ -29,7 +28,7 @@ export default class AI implements Input {
         [Axis.Y]: 0,
     }
 
-    tick(paddle: Paddle, pong: Pong): void {
+    tick(paddle: Paddle, pong: GameState): void {
         const puck = pong.puck
 
         // Only care if puck is approaching

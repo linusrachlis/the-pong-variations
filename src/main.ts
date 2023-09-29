@@ -1,15 +1,9 @@
-import Pong from './pong'
+import { GameMode, GameState } from './state'
 import AI from './ai'
 import { PlayerInput, PlayerSide } from './enums'
-import HumanInput from './human_input'
-import Input from './input'
+import { HumanInput, Input, InputMap } from './input'
 import { draw_game } from './drawing'
-import { gameplay_tick, input_tick } from './gameplay'
-
-export class GameMode {
-    grabbing = false
-    magnetic = false
-}
+import { gameplay_tick, init_game, input_tick } from './gameplay'
 
 window.addEventListener('load', () => {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas')
@@ -35,7 +29,7 @@ window.addEventListener('load', () => {
     grabbing_mode_checkbox.addEventListener('change', update_game_mode)
     magnetic_mode_checkbox.addEventListener('change', update_game_mode)
 
-    let pong: Pong | undefined
+    let game_state: GameState | undefined
 
     const human_input_l = new HumanInput()
     const human_input_r = new HumanInput()
@@ -44,7 +38,7 @@ window.addEventListener('load', () => {
         [PlayerSide.RIGHT]: human_input_r,
     }
 
-    const player_inputs = new Map<PlayerSide, Input>([
+    const player_inputs: InputMap = new Map<PlayerSide, Input>([
         [PlayerSide.LEFT, human_input_l],
         [PlayerSide.RIGHT, new AI()],
     ])
@@ -52,37 +46,40 @@ window.addEventListener('load', () => {
     let tick_interval: number
 
     const paint = () => {
-        if (pong === undefined) return
-        draw_game(ctx, pong)
-        if (!pong.is_over) window.requestAnimationFrame(paint)
+        if (game_state === undefined) return
+        draw_game(ctx, game_state)
+        if (!game_state.is_over) window.requestAnimationFrame(paint)
     }
 
     const tick = () => {
-        if (pong === undefined || pong.is_over) {
+        if (game_state === undefined || game_state.is_over) {
             clearInterval(tick_interval)
             return
         }
-        input_tick(pong)
-        gameplay_tick(pong)
+        input_tick(game_state)
+        gameplay_tick(game_state)
     }
 
     const new_game = () => {
-        if (pong !== undefined && pong.is_over) {
-            pong = undefined
+        if (game_state !== undefined && game_state.is_over) {
+            game_state = undefined
         }
-        if (pong !== undefined) {
+        if (game_state !== undefined) {
             return // Won't restart if exists and isn't over
         }
-        // FIXME: create init_game func instead and flatten the graph of
-        // constructors/inits
-        pong = new Pong(game_mode, canvas.width, canvas.height, player_inputs)
+        game_state = init_game(
+            game_mode,
+            canvas.width,
+            canvas.height,
+            player_inputs
+        )
         tick_interval = window.setInterval(tick, tick_length)
         window.requestAnimationFrame(paint)
     }
     new_game()
 
     const handle_key_event = (e: KeyboardEvent): void => {
-        if (pong === undefined) return
+        if (game_state === undefined) return
 
         // NOTE: horizonal movement is disabled pending
         // https://github.com/linusrachlis/the-pong-variations/issues/11
