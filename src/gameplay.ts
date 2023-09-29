@@ -216,7 +216,10 @@ const check_if_paddle_has_grabbed_puck = (
     }
 }
 
-function compute_puck_bounce_with_paddle(paddle: Paddle, puck: Puck): void {
+export const compute_puck_bounce_with_paddle = (
+    paddle: Paddle,
+    puck: Puck
+): void => {
     let x_overlap: number,
         y_overlap: number,
         x_teleport: number,
