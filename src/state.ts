@@ -8,7 +8,7 @@ export class GameMode {
 }
 
 export class GameState {
-    paddles: Record<PlayerSide, Paddle>
+    paddles: Record<PlayerSide, Paddle> // TODO what's this used for?
     is_over = false
 
     constructor(

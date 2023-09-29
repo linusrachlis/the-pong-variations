@@ -110,29 +110,43 @@ export const paddle_is_pulling = (
     )
 }
 
-export const paddle_is_grabbing = (
-    game_state: GameState,
-    paddle: Paddle
-): boolean => {
-    return game_state.game_mode.grabbing && paddle.trying_to_grab
-}
-
-export const input_tick = (game: GameState) => {
-    for (const [side, input] of game.inputs) {
-        input.tick(game.paddles[side], game)
+export const input_tick = (game_state: GameState) => {
+    for (const [side, input] of game_state.inputs) {
+        input.tick(game_state.paddles[side], game_state)
     }
 }
 
 export const gameplay_tick = (game_state: GameState) => {
-    puck_tick(
-        game_state.puck,
-        [game_state.paddle_l, game_state.paddle_r],
-        game_state
-    )
-    paddle_tick(game_state, game_state.paddle_l, game_state.puck)
-    paddle_tick(game_state, game_state.paddle_r, game_state.puck)
+    const paddles = [game_state.paddle_l, game_state.paddle_r]
+    const puck = game_state.puck
 
-    // TODO don't reverse vel multiple times in single tick
+    update_puck_position(puck, paddles, game_state)
+
+    for (const paddle of paddles) {
+        update_paddle_position(game_state, paddle, puck)
+
+        // Is the puck touching or overlapping the paddle at all?
+        if (
+            puck.left <= paddle.right &&
+            puck.right >= paddle.left &&
+            puck.top <= paddle.bottom &&
+            puck.bottom >= paddle.top
+        ) {
+            check_if_paddle_has_grabbed_puck(
+                game_state,
+                paddle,
+                game_state.puck
+            )
+
+            // If puck is grabbed, don't do bounce calculation now
+            if (game_state.puck.grabbed_by === undefined) {
+                compute_puck_bounce_with_paddle(paddle, puck)
+            }
+        }
+    }
+
+    // TODO don't reverse vel multiple times in single tick (e.g. in case of
+    // collision with both a paddle and floor/ceiling?)
 
     // Puck/ceiling or puck/floor collision check
     if (
@@ -151,10 +165,14 @@ export const gameplay_tick = (game_state: GameState) => {
     }
 }
 
-const paddle_tick = (game: GameState, paddle: Paddle, puck: Puck): void => {
+const update_paddle_position = (
+    game_state: GameState,
+    paddle: Paddle,
+    puck: Puck
+): void => {
     // Apply paddle movement (and apply to puck too, if paddle paddle's
     // grabbing it)
-    if (paddle.moving_down && paddle.bottom < game.height) {
+    if (paddle.moving_down && paddle.bottom < game_state.height) {
         paddle.top += Paddle.move_speed
         if (puck.grabbed_by === paddle) {
             puck.top += Paddle.move_speed
@@ -180,98 +198,96 @@ const paddle_tick = (game: GameState, paddle: Paddle, puck: Puck): void => {
             puck.left += Paddle.move_speed
         }
     }
+}
 
-    // Is the puck touching or overlapping paddle paddle at all?
-    if (
-        puck.left <= paddle.right &&
-        puck.right >= paddle.left &&
-        puck.top <= paddle.bottom &&
-        puck.bottom >= paddle.top
-    ) {
-        const should_apply_grabbing = paddle_is_grabbing(game, paddle)
-        if (should_apply_grabbing && puck.grabbed_by === undefined) {
-            // Apply grab
-            puck.grabbed_by = paddle
-        } else if (!should_apply_grabbing && puck.grabbed_by === paddle) {
-            // Release
-            puck.grabbed_by = undefined
-        }
-
-        // If puck is grabbed, don't do bounce calculation now
-        if (puck.grabbed_by === undefined) {
-            let x_overlap: number,
-                y_overlap: number,
-                x_teleport: number,
-                y_teleport: number,
-                bend_up_factor: number | undefined,
-                bend_down_factor: number | undefined
-
-            const right_overlap = paddle.right - puck.left
-            const left_overlap = puck.right - paddle.left
-
-            // Is the puck at the paddle's left or right edge?
-            // The answer is whichever overlap is lesser.
-            if (right_overlap < left_overlap) {
-                x_teleport = paddle.right
-                x_overlap = right_overlap
-            } else {
-                x_teleport = paddle.left - puck.width
-                x_overlap = left_overlap
-            }
-
-            const bottom_overlap = paddle.bottom - puck.top
-            const top_overlap = puck.bottom - paddle.top
-
-            // Is the puck at the paddle's top or bottom edge?
-            // Again, it's edge with the lesser overlap.
-            if (bottom_overlap < top_overlap) {
-                y_teleport = paddle.bottom
-                y_overlap = bottom_overlap
-
-                if (bottom_overlap < puck.height * 2) {
-                    // When puck is just off the paddle's bottom, angle it
-                    // downwards in proportion to how little of it is overlapping.
-                    bend_down_factor = 1 - bottom_overlap / (puck.height * 2)
-                }
-            } else {
-                y_teleport = paddle.top - puck.height
-                y_overlap = top_overlap
-
-                if (top_overlap < puck.height * 2) {
-                    // When puck is just off the paddle's TOP, angle it
-                    // UPwards in proportion to how little of it is overlapping.
-                    bend_up_factor = 1 - top_overlap / (puck.height * 2)
-                }
-            }
-
-            // Is the puck hitting a vertical or horizontal edge?
-            // Take the lesser of the overlap results from above to find out.
-            //
-            // Note: if they're equal, both axes get reversed,
-            // because the puck is exactly hitting a corner!
-            //
-            // Also, move the puck to line up exactly with the edge it's
-            // bouncing off, so the paddle appears to push it if it's moving.
-            // (This also avoids the problem of the puck getting stuck inside
-            // the paddle in a bouncing loop.)
-            if (x_overlap <= y_overlap) {
-                puck.left = x_teleport
-                puck.vel.x *= -1
-
-                if (bend_up_factor !== undefined) {
-                    puck.vel.bend_up(bend_up_factor)
-                } else if (bend_down_factor !== undefined) {
-                    puck.vel.bend_down(bend_down_factor)
-                }
-            } else if (x_overlap >= y_overlap) {
-                puck.top = y_teleport
-                puck.vel.y *= -1
-            }
-        }
+const check_if_paddle_has_grabbed_puck = (
+    game_state: GameState,
+    paddle: Paddle,
+    puck: Puck
+): void => {
+    const should_apply_grabbing_this_tick =
+        game_state.game_mode.grabbing && paddle.trying_to_grab
+    if (should_apply_grabbing_this_tick && puck.grabbed_by === undefined) {
+        // Apply grab
+        puck.grabbed_by = paddle
+    } else if (!should_apply_grabbing_this_tick && puck.grabbed_by === paddle) {
+        // Release
+        puck.grabbed_by = undefined
     }
 }
 
-const puck_tick = (
+function compute_puck_bounce_with_paddle(paddle: Paddle, puck: Puck): void {
+    let x_overlap: number,
+        y_overlap: number,
+        x_teleport: number,
+        y_teleport: number,
+        bend_up_factor: number | undefined,
+        bend_down_factor: number | undefined
+
+    const right_overlap = paddle.right - puck.left
+    const left_overlap = puck.right - paddle.left
+
+    // Is the puck at the paddle's left or right edge?
+    // The answer is whichever overlap is lesser.
+    if (right_overlap < left_overlap) {
+        x_teleport = paddle.right
+        x_overlap = right_overlap
+    } else {
+        x_teleport = paddle.left - puck.width
+        x_overlap = left_overlap
+    }
+
+    const bottom_overlap = paddle.bottom - puck.top
+    const top_overlap = puck.bottom - paddle.top
+
+    // Is the puck at the paddle's top or bottom edge?
+    // Again, it's edge with the lesser overlap.
+    if (bottom_overlap < top_overlap) {
+        y_teleport = paddle.bottom
+        y_overlap = bottom_overlap
+
+        if (bottom_overlap < puck.height * 2) {
+            // When puck is just off the paddle's bottom, angle it
+            // downwards in proportion to how little of it is overlapping.
+            bend_down_factor = 1 - bottom_overlap / (puck.height * 2)
+        }
+    } else {
+        y_teleport = paddle.top - puck.height
+        y_overlap = top_overlap
+
+        if (top_overlap < puck.height * 2) {
+            // When puck is just off the paddle's TOP, angle it
+            // UPwards in proportion to how little of it is overlapping.
+            bend_up_factor = 1 - top_overlap / (puck.height * 2)
+        }
+    }
+
+    // Is the puck hitting a vertical or horizontal edge?
+    // Take the lesser of the overlap results from above to find out.
+    //
+    // Note: if they're equal, both axes get reversed,
+    // because the puck is exactly hitting a corner!
+    //
+    // Also, move the puck to line up exactly with the edge it's
+    // bouncing off, so the paddle appears to push it if it's moving.
+    // (This also avoids the problem of the puck getting stuck inside
+    // the paddle in a bouncing loop.)
+    if (x_overlap <= y_overlap) {
+        puck.left = x_teleport
+        puck.vel.x *= -1
+
+        if (bend_up_factor !== undefined) {
+            puck.vel.bend_up(bend_up_factor)
+        } else if (bend_down_factor !== undefined) {
+            puck.vel.bend_down(bend_down_factor)
+        }
+    } else if (x_overlap >= y_overlap) {
+        puck.top = y_teleport
+        puck.vel.y *= -1
+    }
+}
+
+const update_puck_position = (
     puck: Puck,
     paddles: Paddle[],
     game_state: GameState
