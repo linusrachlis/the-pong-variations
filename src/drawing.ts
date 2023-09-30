@@ -1,10 +1,10 @@
 import { paddle_is_pulling } from './gameplay'
 import { GameState, Paddle, Puck } from './state'
 
-export const draw_game = (
+export function draw_game(
     ctx: CanvasRenderingContext2D,
     game_state: GameState
-): void => {
+): void {
     ctx.clearRect(0, 0, game_state.width, game_state.height)
     draw_paddle(ctx, game_state, game_state.paddle_l)
     draw_paddle(ctx, game_state, game_state.paddle_r)
@@ -28,18 +28,18 @@ export const draw_game = (
     }
 }
 
-const draw_paddle = (
+function draw_paddle(
     ctx: CanvasRenderingContext2D,
     game_state: GameState,
     paddle: Paddle
-): void => {
+): void {
     ctx.fillStyle = paddle_is_pulling(game_state, paddle)
         ? 'yellow'
         : 'limegreen'
     ctx.fillRect(paddle.left, paddle.top, paddle.width, paddle.height)
 }
 
-const draw_puck = (ctx: CanvasRenderingContext2D, puck: Puck): void => {
+function draw_puck(ctx: CanvasRenderingContext2D, puck: Puck): void {
     ctx.fillStyle = 'magenta'
     ctx.fillRect(
         Math.round(puck.left),
@@ -49,13 +49,13 @@ const draw_puck = (ctx: CanvasRenderingContext2D, puck: Puck): void => {
     )
 }
 
-const paint_text = (
+function paint_text(
     ctx: CanvasRenderingContext2D,
     text: string,
     style: string,
     x: number,
     y: number
-): void => {
+): void {
     ctx.font = style
     ctx.textAlign = 'center'
     ctx.fillStyle = 'white'
