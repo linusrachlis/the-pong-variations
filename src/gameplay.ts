@@ -2,12 +2,12 @@ import { InputMap } from './input'
 import { GameMode, GameState, Paddle, Puck } from './state'
 import { Velocity } from './velocity'
 
-export const init_game = (
+export function init_game(
     game_mode: GameMode,
     width: number,
     height: number,
     inputs: InputMap
-): GameState => {
+): GameState {
     const center_x = width / 2
     const center_y = height / 2
     const paddle_width = 20
@@ -48,14 +48,14 @@ export const init_game = (
     return pong
 }
 
-const init_paddle = (
+function init_paddle(
     left: number,
     top: number,
     width: number,
     height: number,
     center_x: number,
     puck_width: number
-): Paddle => {
+): Paddle {
     const paddle = new Paddle(left, top, width, height)
     if (paddle.center_x < center_x) {
         paddle.left_boundary = 0
@@ -80,10 +80,10 @@ const init_puck = (
     return puck
 }
 
-export const paddle_is_pulling = (
+export function paddle_is_pulling(
     game_state: GameState,
     paddle: Paddle
-): boolean => {
+): boolean {
     // Paddle exerts attractive force on puck when moving
     // in any direction: ((down XOR up) OR (left XOR right)).
     // The xors are because both can be true but that results
@@ -110,13 +110,13 @@ export const paddle_is_pulling = (
     )
 }
 
-export const input_tick = (game_state: GameState) => {
+export function input_tick(game_state: GameState) {
     for (const [side, input] of game_state.inputs) {
         input.tick(game_state.paddles[side], game_state)
     }
 }
 
-export const gameplay_tick = (game_state: GameState) => {
+export function gameplay_tick(game_state: GameState) {
     const paddles = [game_state.paddle_l, game_state.paddle_r]
     const puck = game_state.puck
 
@@ -165,11 +165,11 @@ export const gameplay_tick = (game_state: GameState) => {
     }
 }
 
-const update_paddle_position = (
+function update_paddle_position(
     game_state: GameState,
     paddle: Paddle,
     puck: Puck
-): void => {
+): void {
     // Apply paddle movement (and apply to puck too, if paddle paddle's
     // grabbing it)
     if (paddle.moving_down && paddle.bottom < game_state.height) {
@@ -200,11 +200,11 @@ const update_paddle_position = (
     }
 }
 
-const check_if_paddle_has_grabbed_puck = (
+function check_if_paddle_has_grabbed_puck(
     game_state: GameState,
     paddle: Paddle,
     puck: Puck
-): void => {
+): void {
     const should_apply_grabbing_this_tick =
         game_state.game_mode.grabbing && paddle.trying_to_grab
     if (should_apply_grabbing_this_tick && puck.grabbed_by === undefined) {
@@ -216,10 +216,10 @@ const check_if_paddle_has_grabbed_puck = (
     }
 }
 
-export const compute_puck_bounce_with_paddle = (
+export function compute_puck_bounce_with_paddle(
     paddle: Paddle,
     puck: Puck
-): void => {
+): void {
     let x_overlap: number,
         y_overlap: number,
         x_teleport: number,
@@ -290,11 +290,11 @@ export const compute_puck_bounce_with_paddle = (
     }
 }
 
-const update_puck_position = (
+function update_puck_position(
     puck: Puck,
     paddles: Paddle[],
     game_state: GameState
-): void => {
+): void {
     // Don't move if grabbed -- paddle will apply
     // movement (but keep velocity for when it's released)
     if (puck.grabbed_by !== undefined) return
