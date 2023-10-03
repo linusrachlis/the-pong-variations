@@ -49,7 +49,7 @@
                 border: 3px inset #666;
                 background-color: black;
             }
-            .hidden_panel {
+            .hidden_ui {
                 display: none;
             }
         </style>
@@ -60,11 +60,11 @@
             <div>
                 <label>
                     <input type="checkbox" id="grabbing_mode" />
-                    Enable Grabbing
+                    (<u>1</u>) Enable Grabbing
                 </label>
                 <label>
                     <input type="checkbox" id="magnetic_mode" />
-                    Enable Magnetic Paddles
+                    (<u>2</u>) Enable Magnetic Paddles
                 </label>
             </div>
         </header>
@@ -102,7 +102,7 @@
                         Switch to computer player
                     </button>
                 </div>
-                <div class="ai_panel hidden_panel">
+                <div class="ai_panel hidden_ui">
                     <button
                         class="mode_switch"
                         data-to="human"
@@ -114,7 +114,7 @@
             </div>
             <canvas id="canvas" width="400" height="600"></canvas>
             <div class="sidebar">
-                <div class="help hidden_panel">
+                <div class="help hidden_ui">
                     <h2>Right Paddle:</h2>
                     <table>
                         <tr>
@@ -158,6 +158,12 @@
             </div>
         </main>
         <footer>
+            <p id="keyboard_not_captured_message">
+                <button>Begin/Resume Game</button>
+            </p>
+            <p id="keyboard_captured_message">
+                Keyboard input captured; ESC to pause game and un-capture
+            </p>
             <p>
                 <a href="https://github.com/linusrachlis/the-pong-variations/"
                     >Source Code</a
